@@ -27,8 +27,54 @@ const initialHexes = [
   y,
 }));
 
+const initialTokens = [
+  {
+    fillStyle: 'green',
+    player: 'green',
+    x: 1,
+    y: 2,
+  },
+  {
+    fillStyle: 'green',
+    player: 'green',
+    x: -1,
+    y: 2,
+  },
+  {
+    fillStyle: 'green',
+    player: 'green',
+    x: 0,
+    y: -4,
+  },
+  {
+    fillStyle: 'blue',
+    player: 'blue',
+    x: -1,
+    y: -2,
+  },
+  {
+    fillStyle: 'blue',
+    player: 'blue',
+    x: 1,
+    y: -2,
+  },
+  {
+    fillStyle: 'blue',
+    player: 'blue',
+    x: 0,
+    y: 4,
+  },
+];
+
 export interface IHexState {
   height: number;
+  x: number;
+  y: number;
+}
+
+export interface IToken {
+  fillStyle: string;
+  player: string;
   x: number;
   y: number;
 }
@@ -47,6 +93,8 @@ export interface IGameState {
   hexRadius: number;
   hexStrokeStyle: string;
   hexes: IHexState[];
+  tokens: IToken[];
+  tokenRadius: number;
 }
 
 export const initialGameState: IGameState = {
@@ -59,8 +107,10 @@ export const initialGameState: IGameState = {
     y: 128,
   },
   hexes: initialHexes,
-  hexFillStyle: 'gray',
+  hexFillStyle: 'lightgray',
   hexLineWidth: 2,
   hexStrokeStyle: 'white',
   hexRadius: 16,
+  tokens: initialTokens,
+  tokenRadius: 4,
 };

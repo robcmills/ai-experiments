@@ -2,6 +2,7 @@ import {
   IGameState,
   IHexState,
   initialGameState,
+  IToken,
   SIN_60,
 } from 'components/Game/constants';
 
@@ -17,28 +18,16 @@ export class GameClass {
     this.init();
   }
 
-  private init() {
-    this.setupCanvas();
-    this.draw();
-  }
-
-  private setupCanvas() {
-    const canvas = this.canvas;
-    const dpr = window.devicePixelRatio || 1;
-    canvas.height = this.gameState.canvas.height * dpr;
-    canvas.width = this.gameState.canvas.width * dpr;
-    this.context.scale(dpr, dpr);
-  }
-
   private draw() {
+    this.drawBoard();
+    this.drawTokens();
+  }
+
+  private drawBoard() {
     this.gameState.hexes.forEach((hex: IHexState) => {
       const isEvenRow = hex.y % 2 === 0;
-      const x =
-        this.gameState.hexRadius * 3 * hex.x +
-        (isEvenRow ? 0 : this.gameState.hexRadius * 1.5) +
-        this.gameState.center.x;
-      const y =
-        SIN_60 * this.gameState.hexRadius * hex.y + this.gameState.center.y;
+      const x = this.getXCoordFromIndex(isEvenRow, hex.x);
+      const y = this.getYCoordFromIndex(hex.y);
       this.drawHex({
         fillStyle: this.gameState.hexFillStyle,
         lineWidth: this.gameState.hexLineWidth,
@@ -77,7 +66,8 @@ export class GameClass {
     const adjacent = radius / 2;
     const opposite = SIN_60 * radius;
 
-    const context = this.canvas.getContext('2d');
+    const context = this.context;
+    context.save();
     context.beginPath();
     context.moveTo(x + radius, y);
     context.lineTo(x + adjacent, y + opposite);
@@ -93,5 +83,50 @@ export class GameClass {
     context.lineWidth = lineWidth;
     context.strokeStyle = strokeStyle;
     context.stroke();
+    context.restore();
+  }
+
+  private drawTokens() {
+    const context = this.context;
+    context.save();
+    const radius = this.gameState.tokenRadius;
+    const startAngle = 0;
+    const endAngle = 2 * Math.PI;
+    this.gameState.tokens.forEach((token: IToken) => {
+      const isEvenRow = token.y % 2 === 0;
+      const x = this.getXCoordFromIndex(isEvenRow, token.x);
+      const y = this.getYCoordFromIndex(token.y);
+      context.fillStyle = token.fillStyle;
+      context.beginPath();
+      context.arc(x, y, radius, startAngle, endAngle);
+      context.closePath();
+      context.fill();
+    });
+    context.restore();
+  }
+
+  private getXCoordFromIndex(isEvenRow: boolean, x: number): number {
+    return (
+      this.gameState.hexRadius * 3 * x +
+      (isEvenRow ? 0 : this.gameState.hexRadius * 1.5) +
+      this.gameState.center.x
+    );
+  }
+
+  private getYCoordFromIndex(y: number): number {
+    return SIN_60 * this.gameState.hexRadius * y + this.gameState.center.y;
+  }
+
+  private init() {
+    this.setupCanvas();
+    this.draw();
+  }
+
+  private setupCanvas() {
+    const canvas = this.canvas;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.height = this.gameState.canvas.height * dpr;
+    canvas.width = this.gameState.canvas.width * dpr;
+    this.context.scale(dpr, dpr);
   }
 }
