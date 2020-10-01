@@ -5,13 +5,9 @@ import { GameClass } from 'components/Game/GameClass';
 
 const useStyles = createUseStyles({
   canvas: {
-    bottom: 0,
-    height: '100%',
     left: 0,
     position: 'fixed',
-    right: 0,
     top: 0,
-    width: '100%',
   },
 });
 
