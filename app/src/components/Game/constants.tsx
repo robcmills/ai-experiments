@@ -21,11 +21,15 @@ const initialHexes = [
   [2, 2],
   [2, 4],
   [2, 6],
-].map(([x, y]) => ({
-  height: 0,
-  x,
-  y,
-}));
+].reduce((acc, [x, y]) => {
+  if (!acc[x]) {
+    acc[x] = {};
+  }
+  if (!acc[x][y]) {
+    acc[x][y] = { height: 0, x, y };
+  }
+  return acc;
+}, {} as IHexes);
 
 const initialPlayers = [
   {
@@ -77,6 +81,12 @@ const initialTokens = [
   },
 ];
 
+export interface IHexes {
+  [xIndex: number]: {
+    [yIndex: number]: IHexState;
+  };
+}
+
 export interface IHexState {
   height: number;
   x: number;
@@ -111,7 +121,7 @@ export interface IGameState {
   hexLineWidth: number;
   hexRadius: number;
   hexStrokeStyle: string;
-  hexes: IHexState[];
+  hexes: IHexes;
   players: IPlayer[];
   tokens: IToken[];
   tokenRadius: number;

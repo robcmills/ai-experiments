@@ -28,24 +28,28 @@ export class GameClass {
   }
 
   private drawBoard() {
-    this.gameState.hexes.forEach((hex: IHexState) => {
-      const isEvenRow = hex.y % 2 === 0;
-      const x = this.getXCoordFromIndex(isEvenRow, hex.x);
-      const y = this.getYCoordFromIndex(hex.y);
-      this.drawHex({
-        fillStyle: this.gameState.hexFillStyle,
-        lineWidth: this.gameState.hexLineWidth,
-        strokeStyle: this.gameState.hexStrokeStyle,
-        radius: this.gameState.hexRadius,
-        x,
-        y,
-      });
-      this.drawHexIndex({
-        xCoord: x,
-        yCoord: y,
-        xIndex: hex.x,
-        yIndex: hex.y,
-      });
+    Object.values(this.gameState.hexes).forEach((row, xIndex) => {
+      Object.values(this.gameState.hexes[xIndex]).forEach(
+        (hex: IHexState, yIndex) => {
+          const isEvenRow = hex.y % 2 === 0;
+          const x = this.getXCoordFromIndex(isEvenRow, hex.x);
+          const y = this.getYCoordFromIndex(hex.y);
+          this.drawHex({
+            fillStyle: this.gameState.hexFillStyle,
+            lineWidth: this.gameState.hexLineWidth,
+            strokeStyle: this.gameState.hexStrokeStyle,
+            radius: this.gameState.hexRadius,
+            x,
+            y,
+          });
+          this.drawHexIndex({
+            xCoord: x,
+            yCoord: y,
+            xIndex: hex.x,
+            yIndex: hex.y,
+          });
+        }
+      );
     });
   }
 
