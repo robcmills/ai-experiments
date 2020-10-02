@@ -1,4 +1,6 @@
 import {
+  Direction,
+  DIRECTIONS,
   IGameState,
   IHexState,
   initialGameState,
@@ -17,6 +19,13 @@ export class GameClass {
     this.context = canvas.getContext('2d');
     this.gameState = initialGameState;
     this.init();
+  }
+
+  private addValidTokenMove(x: number, y: number) {
+    if (!this.gameState.validTokenMoves[x]) {
+      this.gameState.validTokenMoves[x] = {};
+    }
+    this.gameState.validTokenMoves[x][y] = true;
   }
 
   private draw() {
@@ -139,20 +148,88 @@ export class GameClass {
     const radius = this.gameState.tokenRadius;
     const startAngle = 0;
     const endAngle = 2 * Math.PI;
-    this.gameState.tokens.forEach((token: IToken) => {
-      const isEvenRow = token.y % 2 === 0;
-      const x = this.getXCoordFromIndex(isEvenRow, token.x);
-      const y = this.getYCoordFromIndex(token.y);
-      context.fillStyle = token.fillStyle;
-      context.beginPath();
-      context.arc(x, y, radius, startAngle, endAngle);
-      context.closePath();
-      context.fill();
+
+    Object.values(this.gameState.tokens).forEach((row, xIndex) => {
+      Object.values(this.gameState.tokens[xIndex]).forEach(
+        (token: IToken, yIndex) => {
+          const isEvenRow = token.y % 2 === 0;
+          const x = this.getXCoordFromIndex(isEvenRow, token.x);
+          const y = this.getYCoordFromIndex(token.y);
+          context.fillStyle = token.fillStyle;
+          context.beginPath();
+          context.arc(x, y, radius, startAngle, endAngle);
+          context.closePath();
+          context.fill();
+        }
+      );
     });
   }
 
   private drawValidMoves() {
-    // todo
+    const context = this.context;
+    const radius = this.gameState.tokenRadius;
+    const startAngle = 0;
+    const endAngle = 2 * Math.PI;
+
+    Object.keys(this.gameState.validTokenMoves).forEach((xKey) => {
+      const xIndex = parseInt(xKey, 10);
+      Object.keys(this.gameState.validTokenMoves[xIndex]).forEach((yKey) => {
+        const yIndex = parseInt(yKey, 10);
+        const isEvenRow = yIndex % 2 === 0;
+        const x = this.getXCoordFromIndex(isEvenRow, xIndex);
+        const y = this.getYCoordFromIndex(yIndex);
+        context.fillStyle = this.gameState.validTokenMovesFillStyle;
+        context.beginPath();
+        context.arc(x, y, radius, startAngle, endAngle);
+        context.closePath();
+        context.fill();
+      });
+    });
+  }
+
+  private getAdjacentHex({
+    direction,
+    xIndex,
+    yIndex,
+  }: {
+    direction: Direction;
+    xIndex: number;
+    yIndex: number;
+  }): IHexState | undefined {
+    const isEvenRow = yIndex % 2 === 0;
+    let adjacentX: number = xIndex;
+    switch (direction) {
+      case Direction.NE:
+      case Direction.SE:
+        adjacentX += isEvenRow ? 0 : 1;
+        break;
+      case Direction.NW:
+      case Direction.SW:
+        adjacentX -= isEvenRow ? 1 : 0;
+        break;
+    }
+    let adjacentY: number = yIndex;
+    switch (direction) {
+      case Direction.N:
+        adjacentY -= 2;
+        break;
+      case Direction.S:
+        adjacentY += 2;
+        break;
+      case Direction.NE:
+      case Direction.NW:
+        adjacentY -= 1;
+        break;
+      case Direction.SE:
+      case Direction.SW:
+        adjacentY += 1;
+        break;
+    }
+    return (this.gameState.hexes[adjacentX] || {})[adjacentY];
+  }
+
+  private getTokenAt(x: number, y: number) {
+    return (this.gameState.tokens[x] || {})[y];
   }
 
   private getXCoordFromIndex(isEvenRow: boolean, x: number): number {
@@ -180,5 +257,41 @@ export class GameClass {
     this.context.scale(dpr, dpr);
   }
 
-  private updateValidMoves() {}
+  private updateValidMoves() {
+    this.gameState.validStackMoves = {};
+    this.gameState.validTokenMoves = {};
+
+    Object.values(this.gameState.tokens).forEach((row, xIndex) => {
+      Object.values(this.gameState.tokens[xIndex]).forEach(
+        (token: IToken, yIndex) => {
+          if (this.gameState.activePlayer !== token.player) {
+            return;
+          }
+          DIRECTIONS.forEach((direction: Direction) => {
+            let counter = 0;
+            let previousAdjacentHex: IHexState = this.gameState.hexes[token.x][
+              token.y
+            ];
+            let nextAdjacentHex: IHexState | undefined;
+            do {
+              counter++;
+              nextAdjacentHex = this.getAdjacentHex({
+                direction,
+                xIndex: previousAdjacentHex.x,
+                yIndex: previousAdjacentHex.y,
+              });
+              if (
+                nextAdjacentHex &&
+                nextAdjacentHex.height - previousAdjacentHex.height < 2 &&
+                !this.getTokenAt(nextAdjacentHex.x, nextAdjacentHex.y)
+              ) {
+                this.addValidTokenMove(nextAdjacentHex.x, nextAdjacentHex.y);
+              }
+              previousAdjacentHex = nextAdjacentHex;
+            } while (nextAdjacentHex && counter < 10);
+          });
+        }
+      );
+    });
+  }
 }

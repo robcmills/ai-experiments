@@ -1,3 +1,21 @@
+export enum Direction {
+  N,
+  NE,
+  SE,
+  S,
+  SW,
+  NW,
+}
+
+export const DIRECTIONS: Direction[] = [
+  Direction.N,
+  Direction.NE,
+  Direction.SE,
+  Direction.S,
+  Direction.SW,
+  Direction.NW,
+];
+
 export const toRad = (degrees: number) => degrees * (Math.PI / 180);
 export const SIN_60 = Math.sin(toRad(60));
 
@@ -42,44 +60,50 @@ const initialPlayers = [
   },
 ];
 
-const initialTokens = [
-  {
-    fillStyle: 'green',
-    player: 'green',
-    x: 2,
-    y: 6,
+const initialTokens: ITokens = {
+  0: {
+    2: {
+      fillStyle: 'blue',
+      player: 'blue',
+      x: 0,
+      y: 2,
+    },
+    6: {
+      fillStyle: 'green',
+      player: 'green',
+      x: 0,
+      y: 6,
+    },
   },
-  {
-    fillStyle: 'green',
-    player: 'green',
-    x: 0,
-    y: 6,
+  1: {
+    0: {
+      fillStyle: 'green',
+      player: 'green',
+      x: 1,
+      y: 0,
+    },
+    8: {
+      fillStyle: 'blue',
+      player: 'blue',
+      x: 1,
+      y: 8,
+    },
   },
-  {
-    fillStyle: 'green',
-    player: 'green',
-    x: 1,
-    y: 0,
+  2: {
+    2: {
+      fillStyle: 'blue',
+      player: 'blue',
+      x: 2,
+      y: 2,
+    },
+    6: {
+      fillStyle: 'green',
+      player: 'green',
+      x: 2,
+      y: 6,
+    },
   },
-  {
-    fillStyle: 'blue',
-    player: 'blue',
-    x: 0,
-    y: 2,
-  },
-  {
-    fillStyle: 'blue',
-    player: 'blue',
-    x: 2,
-    y: 2,
-  },
-  {
-    fillStyle: 'blue',
-    player: 'blue',
-    x: 1,
-    y: 8,
-  },
-];
+};
 
 export interface IHexes {
   [xIndex: number]: {
@@ -100,9 +124,21 @@ export interface IToken {
   y: number;
 }
 
+export interface ITokens {
+  [xIndex: number]: {
+    [yIndex: number]: IToken;
+  };
+}
+
 export interface IPlayer {
   name: string;
   score: number;
+}
+
+export interface IValidMoves {
+  [xIndex: number]: {
+    [yIndex: number]: boolean;
+  };
 }
 
 export interface IGameState {
@@ -123,8 +159,11 @@ export interface IGameState {
   hexStrokeStyle: string;
   hexes: IHexes;
   players: IPlayer[];
-  tokens: IToken[];
+  tokens: ITokens;
   tokenRadius: number;
+  validStackMoves: IValidMoves;
+  validTokenMoves: IValidMoves;
+  validTokenMovesFillStyle: string;
 }
 
 export const initialGameState: IGameState = {
@@ -147,4 +186,7 @@ export const initialGameState: IGameState = {
   players: initialPlayers,
   tokens: initialTokens,
   tokenRadius: 4,
+  validStackMoves: {},
+  validTokenMoves: {},
+  validTokenMovesFillStyle: 'orange',
 };
