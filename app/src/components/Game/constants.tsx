@@ -27,6 +27,17 @@ const initialHexes = [
   y,
 }));
 
+const initialPlayers = [
+  {
+    name: 'green',
+    score: 0,
+  },
+  {
+    name: 'blue',
+    score: 0,
+  },
+];
+
 const initialTokens = [
   {
     fillStyle: 'green',
@@ -79,7 +90,13 @@ export interface IToken {
   y: number;
 }
 
+export interface IPlayer {
+  name: string;
+  score: number;
+}
+
 export interface IGameState {
+  activePlayer: string;
   canvas: {
     height: number;
     width: number;
@@ -88,16 +105,20 @@ export interface IGameState {
     x: number;
     y: number;
   };
+  font: string;
+  fontSize: string;
   hexFillStyle: string;
   hexLineWidth: number;
   hexRadius: number;
   hexStrokeStyle: string;
   hexes: IHexState[];
+  players: IPlayer[];
   tokens: IToken[];
   tokenRadius: number;
 }
 
 export const initialGameState: IGameState = {
+  activePlayer: 'green',
   canvas: {
     height: 256,
     width: 256,
@@ -106,11 +127,14 @@ export const initialGameState: IGameState = {
     x: 128,
     y: 128,
   },
+  font: 'sans-serif',
+  fontSize: '10px',
   hexes: initialHexes,
   hexFillStyle: 'lightgray',
   hexLineWidth: 2,
   hexStrokeStyle: 'white',
   hexRadius: 16,
+  players: initialPlayers,
   tokens: initialTokens,
   tokenRadius: 4,
 };

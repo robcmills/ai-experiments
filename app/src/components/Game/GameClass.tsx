@@ -2,6 +2,7 @@ import {
   IGameState,
   IHexState,
   initialGameState,
+  IPlayer,
   IToken,
   SIN_60,
 } from 'components/Game/constants';
@@ -21,6 +22,9 @@ export class GameClass {
   private draw() {
     this.drawBoard();
     this.drawTokens();
+    this.updateValidMoves();
+    this.drawValidMoves();
+    this.drawText();
   }
 
   private drawBoard() {
@@ -35,6 +39,12 @@ export class GameClass {
         radius: this.gameState.hexRadius,
         x,
         y,
+      });
+      this.drawHexIndex({
+        xCoord: x,
+        yCoord: y,
+        xIndex: hex.x,
+        yIndex: hex.y,
       });
     });
   }
@@ -67,7 +77,6 @@ export class GameClass {
     const opposite = SIN_60 * radius;
 
     const context = this.context;
-    context.save();
     context.beginPath();
     context.moveTo(x + radius, y);
     context.lineTo(x + adjacent, y + opposite);
@@ -83,12 +92,46 @@ export class GameClass {
     context.lineWidth = lineWidth;
     context.strokeStyle = strokeStyle;
     context.stroke();
-    context.restore();
+  }
+
+  private drawHexIndex({
+    xCoord,
+    yCoord,
+    xIndex,
+    yIndex,
+  }: {
+    xCoord: number;
+    yCoord: number;
+    xIndex: number;
+    yIndex: number;
+  }) {
+    const context = this.context;
+    context.fillStyle = 'dimgray';
+    context.font = '6px sans-serif';
+    context.fillText(
+      `${xIndex},${yIndex}`,
+      xCoord - this.gameState.hexRadius / 3,
+      yCoord + this.gameState.hexRadius - 5
+    );
+  }
+
+  private drawText() {
+    const activePlayer = this.gameState.activePlayer;
+    const marginLeft = 10;
+    const lineHeight = 16;
+    const scores = this.gameState.players.reduce((acc, player: IPlayer) => {
+      acc += `${player.name}:${player.score} `;
+      return acc;
+    }, '');
+    const context = this.context;
+    context.fillStyle = 'black';
+    context.font = `${this.gameState.fontSize} ${this.gameState.font}`;
+    context.fillText(`Scores: ${scores}`, marginLeft, lineHeight);
+    context.fillText(`${activePlayer} to play`, marginLeft, lineHeight * 2);
   }
 
   private drawTokens() {
     const context = this.context;
-    context.save();
     const radius = this.gameState.tokenRadius;
     const startAngle = 0;
     const endAngle = 2 * Math.PI;
@@ -102,7 +145,10 @@ export class GameClass {
       context.closePath();
       context.fill();
     });
-    context.restore();
+  }
+
+  private drawValidMoves() {
+    // todo
   }
 
   private getXCoordFromIndex(isEvenRow: boolean, x: number): number {
@@ -129,4 +175,6 @@ export class GameClass {
     canvas.width = this.gameState.canvas.width * dpr;
     this.context.scale(dpr, dpr);
   }
+
+  private updateValidMoves() {}
 }
