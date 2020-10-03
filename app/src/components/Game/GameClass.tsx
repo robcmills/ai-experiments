@@ -9,14 +9,17 @@ import {
   SIN_60,
 } from 'components/Game/constants';
 import { getRandomKey } from 'components/Game/getRandomKey';
+import { gameConfig, IGameConfig } from 'components/Game/IGameConfig';
 
 export class GameClass {
   private canvas: HTMLCanvasElement;
+  private config: IGameConfig;
   private context: CanvasRenderingContext2D;
   private gameState: IGameState;
 
   constructor({ canvas }: { canvas: HTMLCanvasElement }) {
     this.canvas = canvas;
+    this.config = gameConfig;
     this.context = canvas.getContext('2d');
     this.gameState = initialGameState;
     this.init();
@@ -50,9 +53,7 @@ export class GameClass {
       const stackMove = this.getRandomStackMove();
       if (stackMove) {
         const [xIndex, yIndex] = stackMove;
-        this.gameState.hexes[xIndex][
-          yIndex
-        ].owner = this.gameState.activePlayer;
+        this.stackHex(xIndex, yIndex, this.gameState.activePlayer);
         this.gameState.activePlayer =
           this.gameState.activePlayer === 'green' ? 'blue' : 'green';
         this.update();
@@ -92,12 +93,19 @@ export class GameClass {
           x: xCoord,
           y: yCoord,
         });
-        this.drawHexIndex({
+        this.drawHexHeight({
+          height: hex.height,
           xCoord,
           yCoord,
-          xIndex: hex.x,
-          yIndex: hex.y,
         });
+        if (this.config.drawHexIndexes) {
+          this.drawHexIndex({
+            xCoord,
+            yCoord,
+            xIndex: hex.x,
+            yIndex: hex.y,
+          });
+        }
       });
     });
   }
@@ -145,6 +153,25 @@ export class GameClass {
     context.lineWidth = lineWidth;
     context.strokeStyle = strokeStyle;
     context.stroke();
+  }
+
+  private drawHexHeight({
+    height,
+    xCoord,
+    yCoord,
+  }: {
+    height: number;
+    xCoord: number;
+    yCoord: number;
+  }) {
+    const context = this.context;
+    context.fillStyle = 'dimgray';
+    context.font = '6px sans-serif';
+    context.fillText(
+      `${height}`,
+      xCoord - this.gameState.hexRadius / 3,
+      yCoord - this.gameState.hexRadius + 9
+    );
   }
 
   private drawHexIndex({
@@ -324,9 +351,32 @@ export class GameClass {
     this.context.scale(dpr, dpr);
   }
 
+  private stackHex(xIndex: number, yIndex: number, player: string) {
+    const hex = this.gameState.hexes[xIndex][yIndex];
+    hex.height++;
+    hex.owner = player;
+  }
+
   private update() {
+    this.updateScores();
     this.updateValidMoves();
     this.draw();
+  }
+
+  private updateScores() {
+    Object.values(this.gameState.players).forEach((player: IPlayer) => {
+      player.score = 0;
+    });
+    Object.keys(this.gameState.hexes).forEach((xKey) => {
+      const xIndex = parseInt(xKey, 10);
+      Object.keys(this.gameState.hexes[xIndex]).forEach((yKey) => {
+        const yIndex = parseInt(yKey, 10);
+        const hex: IHexState = this.gameState.hexes[xIndex][yIndex];
+        if (hex.owner) {
+          this.gameState.players[hex.owner].score += hex.height;
+        }
+      });
+    });
   }
 
   private updateValidMoves() {
