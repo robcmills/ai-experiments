@@ -9,7 +9,7 @@ import {
   IValidTokenMove,
   PlayerName,
   SIN_60,
-} from 'components/Game/constants';
+} from 'components/Game/IGameState';
 import { getRandomKey } from 'components/Game/getRandomKey';
 import { gameConfig, IGameConfig } from 'components/Game/IGameConfig';
 
