@@ -513,21 +513,25 @@ export class GameClass {
         }
 
         DIRECTIONS.forEach((direction: Direction) => {
-          let counter = 0;
+          let distance = 0;
           let previousAdjacentHex: IHexState = originHex;
           let nextAdjacentHex: IHexState | undefined;
           do {
-            counter++;
+            distance++;
             nextAdjacentHex = this.getAdjacentHex({
               direction,
               xIndex: previousAdjacentHex.x,
               yIndex: previousAdjacentHex.y,
             });
-            if (
-              nextAdjacentHex &&
-              nextAdjacentHex.height - previousAdjacentHex.height < 2 && // cliffs
-              !this.getTokenAt(nextAdjacentHex.x, nextAdjacentHex.y)
-            ) {
+            if (!nextAdjacentHex) {
+              return;
+            }
+            const isCliff =
+              nextAdjacentHex.height - previousAdjacentHex.height > 1;
+            if (isCliff) {
+              return;
+            }
+            if (!this.getTokenAt(nextAdjacentHex.x, nextAdjacentHex.y)) {
               this.addValidTokenMove({
                 from: {
                   xIndex: token.x,
@@ -538,7 +542,7 @@ export class GameClass {
                   yIndex: nextAdjacentHex.y,
                 },
               });
-              if (counter < 2 && nextAdjacentHex.owner !== token.player) {
+              if (distance < 2 && nextAdjacentHex.owner !== token.player) {
                 this.addValidStackMove(nextAdjacentHex.x, nextAdjacentHex.y);
               }
             }
