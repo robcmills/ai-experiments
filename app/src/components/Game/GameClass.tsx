@@ -98,9 +98,10 @@ export class GameClass {
         const yIndex = parseInt(yKey, 10);
         const hex: IHexState = this.gameState.hexes[xIndex][yIndex];
         const isValidStackMove = this.getValidStackMove(xIndex, yIndex);
-        let fillStyle = isValidStackMove
-          ? this.gameState.validStackMoveFillStyle
-          : this.gameState.hexFillStyle;
+        let fillStyle =
+          isValidStackMove && this.config.drawValidMoves
+            ? this.gameState.validStackMoveFillStyle
+            : this.gameState.hexFillStyle;
         if (hex.owner) {
           fillStyle = this.gameState.players[hex.owner].hexFillStyle;
         }
@@ -278,6 +279,9 @@ export class GameClass {
   }
 
   private drawValidMoves() {
+    if (!this.config.drawValidMoves) {
+      return;
+    }
     const context = this.context;
     const radius = this.gameState.tokenRadius;
     const startAngle = 0;
