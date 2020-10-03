@@ -159,56 +159,22 @@ export interface IValidTokenMoves {
 
 export interface IGameState {
   activePlayer: string;
-  canvas: {
-    height: number;
-    width: number;
-  };
-  center: {
-    x: number;
-    y: number;
-  };
-  font: string;
-  fontSize: string;
-  hexFillStyle: string;
-  hexLineWidth: number;
-  hexRadius: number;
-  hexStrokeStyle: string;
   hexes: IHexes;
   isEnd: boolean;
   players: IPlayers;
   playersTurnOrder: string[];
   tokens: ITokens;
-  tokenRadius: number;
-  validStackMoveFillStyle: string;
   validStackMoves: IValidStackMoves;
   validTokenMoves: IValidTokenMoves;
-  validTokenMovesFillStyle: string;
 }
 
 export const initialGameState: IGameState = {
   activePlayer: 'green',
-  canvas: {
-    height: 256,
-    width: 256,
-  },
-  center: {
-    x: 64,
-    y: 64,
-  },
-  font: 'sans-serif',
-  fontSize: '10px',
   hexes: initialHexes,
-  hexFillStyle: 'lightgray',
-  hexLineWidth: 2,
-  hexStrokeStyle: 'white',
-  hexRadius: 16,
   isEnd: false,
   players: initialPlayers,
   playersTurnOrder: initialPlayersTurnOrder,
   tokens: initialTokens,
-  tokenRadius: 4,
-  validStackMoveFillStyle: 'gold',
   validStackMoves: {},
   validTokenMoves: {},
-  validTokenMovesFillStyle: 'orange',
 };

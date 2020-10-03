@@ -100,8 +100,8 @@ export class GameClass {
         const isValidStackMove = this.getValidStackMove(xIndex, yIndex);
         let fillStyle =
           isValidStackMove && this.config.drawValidMoves
-            ? this.gameState.validStackMoveFillStyle
-            : this.gameState.hexFillStyle;
+            ? this.config.validStackMoveFillStyle
+            : this.config.hexFillStyle;
         if (hex.owner) {
           fillStyle = this.gameState.players[hex.owner].hexFillStyle;
         }
@@ -110,9 +110,9 @@ export class GameClass {
         const yCoord = this.getYCoordFromIndex(hex.y);
         this.drawHex({
           fillStyle,
-          lineWidth: this.gameState.hexLineWidth,
-          strokeStyle: this.gameState.hexStrokeStyle,
-          radius: this.gameState.hexRadius,
+          lineWidth: this.config.hexLineWidth,
+          strokeStyle: this.config.hexStrokeStyle,
+          radius: this.config.hexRadius,
           x: xCoord,
           y: yCoord,
         });
@@ -192,8 +192,8 @@ export class GameClass {
     context.font = '6px sans-serif';
     context.fillText(
       `${height}`,
-      xCoord - this.gameState.hexRadius / 3,
-      yCoord - this.gameState.hexRadius + 9
+      xCoord - this.config.hexRadius / 3,
+      yCoord - this.config.hexRadius + 9
     );
   }
 
@@ -213,8 +213,8 @@ export class GameClass {
     context.font = '6px sans-serif';
     context.fillText(
       `${xIndex},${yIndex}`,
-      xCoord - this.gameState.hexRadius / 3,
-      yCoord + this.gameState.hexRadius - 5
+      xCoord - this.config.hexRadius / 3,
+      yCoord + this.config.hexRadius - 5
     );
   }
 
@@ -231,7 +231,7 @@ export class GameClass {
     );
     const context = this.context;
     context.fillStyle = 'black';
-    context.font = `${this.gameState.fontSize} ${this.gameState.font}`;
+    context.font = `${this.config.fontSize} ${this.config.font}`;
 
     // Scores
     context.fillText(`Scores: ${scores}`, marginLeft, lineHeight);
@@ -257,7 +257,7 @@ export class GameClass {
 
   private drawTokens() {
     const context = this.context;
-    const radius = this.gameState.tokenRadius;
+    const radius = this.config.tokenRadius;
     const startAngle = 0;
     const endAngle = 2 * Math.PI;
 
@@ -283,7 +283,7 @@ export class GameClass {
       return;
     }
     const context = this.context;
-    const radius = this.gameState.tokenRadius;
+    const radius = this.config.tokenRadius;
     const startAngle = 0;
     const endAngle = 2 * Math.PI;
 
@@ -294,7 +294,7 @@ export class GameClass {
         const isEvenRow = yIndex % 2 === 0;
         const x = this.getXCoordFromIndex(isEvenRow, xIndex);
         const y = this.getYCoordFromIndex(yIndex);
-        context.fillStyle = this.gameState.validTokenMovesFillStyle;
+        context.fillStyle = this.config.validTokenMovesFillStyle;
         context.beginPath();
         context.arc(x, y, radius, startAngle, endAngle);
         context.closePath();
@@ -376,14 +376,14 @@ export class GameClass {
 
   private getXCoordFromIndex(isEvenRow: boolean, x: number): number {
     return (
-      this.gameState.hexRadius * 3 * x +
-      (isEvenRow ? 0 : this.gameState.hexRadius * 1.5) +
-      this.gameState.center.x
+      this.config.hexRadius * 3 * x +
+      (isEvenRow ? 0 : this.config.hexRadius * 1.5) +
+      this.config.center.x
     );
   }
 
   private getYCoordFromIndex(y: number): number {
-    return SIN_60 * this.gameState.hexRadius * y + this.gameState.center.y;
+    return SIN_60 * this.config.hexRadius * y + this.config.center.y;
   }
 
   private handleKeydown(event: KeyboardEvent) {
@@ -426,8 +426,8 @@ export class GameClass {
   private setupCanvas() {
     const canvas = this.canvas;
     const dpr = window.devicePixelRatio || 1;
-    canvas.height = this.gameState.canvas.height * dpr;
-    canvas.width = this.gameState.canvas.width * dpr;
+    canvas.height = this.config.canvas.height * dpr;
+    canvas.width = this.config.canvas.width * dpr;
     this.context.scale(dpr, dpr);
   }
 
