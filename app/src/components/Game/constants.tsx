@@ -19,84 +19,90 @@ export const DIRECTIONS: Direction[] = [
 export const toRad = (degrees: number) => degrees * (Math.PI / 180);
 export const SIN_60 = Math.sin(toRad(60));
 
-const initialHexes = [
-  [0, 3],
-  [0, 2],
-  [0, 1],
-  [0, 4],
-  [0, 5],
-  [0, 6],
-  [0, 7],
-  [1, 3],
-  [1, 2],
-  [1, 1],
-  [1, 0],
-  [1, 4],
-  [1, 5],
-  [1, 6],
-  [1, 7],
-  [1, 8],
-  [2, 2],
-  [2, 4],
-  [2, 6],
-].reduce((acc, [x, y]) => {
-  if (!acc[x]) {
-    acc[x] = {};
-  }
-  if (!acc[x][y]) {
-    acc[x][y] = { height: 0, x, y };
-  }
-  return acc;
-}, {} as IHexes);
+function getInitialHexes() {
+  return [
+    [0, 3],
+    [0, 2],
+    [0, 1],
+    [0, 4],
+    [0, 5],
+    [0, 6],
+    [0, 7],
+    [1, 3],
+    [1, 2],
+    [1, 1],
+    [1, 0],
+    [1, 4],
+    [1, 5],
+    [1, 6],
+    [1, 7],
+    [1, 8],
+    [2, 2],
+    [2, 4],
+    [2, 6],
+  ].reduce((acc, [x, y]) => {
+    if (!acc[x]) {
+      acc[x] = {};
+    }
+    if (!acc[x][y]) {
+      acc[x][y] = { height: 0, x, y };
+    }
+    return acc;
+  }, {} as IHexes);
+}
 
-const initialPlayers = {
-  red: {
-    hexFillStyle: 'lightcoral',
-    name: 'red',
-    score: 0,
-  } as IPlayer,
-  green: {
-    hexFillStyle: 'lightgreen',
-    name: 'green',
-    score: 0,
-  } as IPlayer,
-  blue: {
-    hexFillStyle: 'lightblue',
-    name: 'blue',
-    score: 0,
-  } as IPlayer,
-};
+function getInitialPlayers() {
+  return {
+    red: {
+      hexFillStyle: 'lightcoral',
+      name: 'red',
+      score: 0,
+    } as IPlayer,
+    green: {
+      hexFillStyle: 'lightgreen',
+      name: 'green',
+      score: 0,
+    } as IPlayer,
+    blue: {
+      hexFillStyle: 'lightblue',
+      name: 'blue',
+      score: 0,
+    } as IPlayer,
+  };
+}
 
-const initialPlayersTurnOrder = Object.values(initialPlayers).map(
+const initialPlayersTurnOrder = Object.values(getInitialPlayers()).map(
   (player: IPlayer) => player.name
 );
 
-const initialTokens: ITokens = {
-  0: {
-    6: {
-      fillStyle: 'green',
-      player: 'green',
-      x: 0,
-      y: 6,
-    },
-  },
-  1: {
+function getInitialTokens(): ITokens {
+  return {
     0: {
-      fillStyle: 'red',
-      player: 'red',
-      x: 1,
-      y: 0,
+      6: {
+        fillStyle: 'green',
+        player: 'green',
+        x: 0,
+        y: 6,
+      },
     },
-  },
-  2: {
-    6: {
-      fillStyle: 'blue',
-      player: 'blue',
-      x: 2,
-      y: 6,
+    1: {
+      0: {
+        fillStyle: 'red',
+        player: 'red',
+        x: 1,
+        y: 0,
+      },
     },
-  },
-};
+    2: {
+      6: {
+        fillStyle: 'blue',
+        player: 'blue',
+        x: 2,
+        y: 6,
+      },
+    },
+  };
+}
 
 export type PlayerName = 'red' | 'green' | 'blue';
 
@@ -170,13 +176,15 @@ export interface IGameState {
   validTokenMoves: IValidTokenMoves;
 }
 
-export const initialGameState: IGameState = {
-  activePlayer: 'green',
-  hexes: initialHexes,
-  isEnd: false,
-  players: initialPlayers,
-  playersTurnOrder: initialPlayersTurnOrder,
-  tokens: initialTokens,
-  validStackMoves: {},
-  validTokenMoves: {},
-};
+export function getInitialGameState(): IGameState {
+  return {
+    activePlayer: 'green',
+    hexes: getInitialHexes(),
+    isEnd: false,
+    players: getInitialPlayers(),
+    playersTurnOrder: initialPlayersTurnOrder,
+    tokens: getInitialTokens(),
+    validStackMoves: {},
+    validTokenMoves: {},
+  };
+}

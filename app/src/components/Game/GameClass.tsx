@@ -1,9 +1,9 @@
 import {
   Direction,
   DIRECTIONS,
+  getInitialGameState,
   IGameState,
   IHexState,
-  initialGameState,
   IPlayer,
   IToken,
   IValidTokenMove,
@@ -23,7 +23,7 @@ export class GameClass {
     this.canvas = canvas;
     this.config = gameConfig;
     this.context = canvas.getContext('2d');
-    this.gameState = initialGameState;
+    this.gameState = getInitialGameState();
     this.init();
   }
 
@@ -390,6 +390,15 @@ export class GameClass {
   private handleKeydown(event: KeyboardEvent) {
     if (event.key === 'ArrowRight') {
       this.doRandomMove();
+    } else if (event.key === 'Enter') {
+      const t0 = performance.now();
+      while (!this.gameState.isEnd) {
+        this.doRandomMove();
+      }
+      const t1 = performance.now();
+      console.log(`Game took ${t1 - t0} milliseconds.`);
+    } else if (event.key === 'r') {
+      this.reset();
     }
   }
 
@@ -409,6 +418,11 @@ export class GameClass {
       y: to.yIndex,
     };
     delete this.gameState.tokens[from.xIndex][from.yIndex];
+  }
+
+  private reset() {
+    this.gameState = getInitialGameState();
+    this.draw();
   }
 
   private rotateActivePlayer() {
