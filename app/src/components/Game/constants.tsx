@@ -134,9 +134,26 @@ export interface IPlayers {
   [name: string]: IPlayer;
 }
 
-export interface IValidMoves {
+export interface IValidStackMoves {
   [xIndex: number]: {
     [yIndex: number]: boolean;
+  };
+}
+
+export interface IValidTokenMove {
+  from: {
+    xIndex: number;
+    yIndex: number;
+  };
+  to: {
+    xIndex: number;
+    yIndex: number;
+  };
+}
+
+export interface IValidTokenMoves {
+  [xIndex: number]: {
+    [yIndex: number]: IValidTokenMove;
   };
 }
 
@@ -163,8 +180,8 @@ export interface IGameState {
   tokens: ITokens;
   tokenRadius: number;
   validStackMoveFillStyle: string;
-  validStackMoves: IValidMoves;
-  validTokenMoves: IValidMoves;
+  validStackMoves: IValidStackMoves;
+  validTokenMoves: IValidTokenMoves;
   validTokenMovesFillStyle: string;
 }
 

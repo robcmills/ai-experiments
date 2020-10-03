@@ -6,6 +6,7 @@ import {
   initialGameState,
   IPlayer,
   IToken,
+  IValidTokenMove,
   SIN_60,
 } from 'components/Game/constants';
 import { getRandomKey } from 'components/Game/getRandomKey';
@@ -32,11 +33,12 @@ export class GameClass {
     this.gameState.validStackMoves[x][y] = true;
   }
 
-  private addValidTokenMove(x: number, y: number) {
-    if (!this.gameState.validTokenMoves[x]) {
-      this.gameState.validTokenMoves[x] = {};
+  private addValidTokenMove(validTokenMove: IValidTokenMove) {
+    const { to } = validTokenMove;
+    if (!this.gameState.validTokenMoves[to.xIndex]) {
+      this.gameState.validTokenMoves[to.xIndex] = {};
     }
-    this.gameState.validTokenMoves[x][y] = true;
+    this.gameState.validTokenMoves[to.xIndex][to.yIndex] = validTokenMove;
   }
 
   private bindEventListeners() {
@@ -49,11 +51,18 @@ export class GameClass {
 
   private doRandomMove() {
     const r = Math.random();
-    if (r < 1) {
+    if (r < 0.75) {
       const stackMove = this.getRandomStackMove();
       if (stackMove) {
         const [xIndex, yIndex] = stackMove;
         this.stackHex(xIndex, yIndex, this.gameState.activePlayer);
+        this.rotateActivePlayer();
+        this.update();
+      }
+    } else {
+      const tokenMove = this.getRandomTokenMove();
+      if (tokenMove) {
+        this.moveToken(tokenMove);
         this.rotateActivePlayer();
         this.update();
       }
@@ -328,6 +337,17 @@ export class GameClass {
     return [xIndex, yIndex];
   }
 
+  private getRandomTokenMove(): IValidTokenMove {
+    const xKey: string = getRandomKey(this.gameState.validTokenMoves);
+    if (!xKey) {
+      return;
+    }
+    const xIndex = parseInt(xKey, 10);
+    const yKey = getRandomKey(this.gameState.validTokenMoves[xIndex]);
+    const yIndex = parseInt(yKey, 10);
+    return this.gameState.validTokenMoves[xIndex][yIndex];
+  }
+
   private getTokenAt(x: number, y: number) {
     return (this.gameState.tokens[x] || {})[y];
   }
@@ -359,6 +379,17 @@ export class GameClass {
     this.updateValidMoves();
     this.draw();
     this.bindEventListeners();
+  }
+
+  private moveToken(tokenMove: IValidTokenMove) {
+    const { from, to } = tokenMove;
+    const token = this.gameState.tokens[from.xIndex][from.yIndex];
+    this.gameState.tokens[to.xIndex][to.yIndex] = {
+      ...token,
+      x: to.xIndex,
+      y: to.yIndex,
+    };
+    delete this.gameState.tokens[from.xIndex][from.yIndex];
   }
 
   private rotateActivePlayer() {
@@ -462,7 +493,16 @@ export class GameClass {
               nextAdjacentHex.height - previousAdjacentHex.height < 2 && // cliffs
               !this.getTokenAt(nextAdjacentHex.x, nextAdjacentHex.y)
             ) {
-              this.addValidTokenMove(nextAdjacentHex.x, nextAdjacentHex.y);
+              this.addValidTokenMove({
+                from: {
+                  xIndex: token.x,
+                  yIndex: token.y,
+                },
+                to: {
+                  xIndex: nextAdjacentHex.x,
+                  yIndex: nextAdjacentHex.y,
+                },
+              });
               if (counter < 2 && nextAdjacentHex.owner !== token.player) {
                 this.addValidStackMove(nextAdjacentHex.x, nextAdjacentHex.y);
               }
