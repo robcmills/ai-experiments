@@ -50,6 +50,11 @@ const initialHexes = [
 }, {} as IHexes);
 
 const initialPlayers = {
+  red: {
+    hexFillStyle: 'lightcoral',
+    name: 'red',
+    score: 0,
+  },
   green: {
     hexFillStyle: 'lightgreen',
     name: 'green',
@@ -68,12 +73,6 @@ const initialPlayersTurnOrder = Object.values(initialPlayers).map(
 
 const initialTokens: ITokens = {
   0: {
-    2: {
-      fillStyle: 'blue',
-      player: 'blue',
-      x: 0,
-      y: 2,
-    },
     6: {
       fillStyle: 'green',
       player: 'green',
@@ -83,28 +82,16 @@ const initialTokens: ITokens = {
   },
   1: {
     0: {
-      fillStyle: 'green',
-      player: 'green',
+      fillStyle: 'red',
+      player: 'red',
       x: 1,
       y: 0,
     },
-    8: {
-      fillStyle: 'blue',
-      player: 'blue',
-      x: 1,
-      y: 8,
-    },
   },
   2: {
-    2: {
+    6: {
       fillStyle: 'blue',
       player: 'blue',
-      x: 2,
-      y: 2,
-    },
-    6: {
-      fillStyle: 'green',
-      player: 'green',
       x: 2,
       y: 6,
     },
