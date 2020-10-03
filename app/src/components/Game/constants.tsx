@@ -54,17 +54,17 @@ const initialPlayers = {
     hexFillStyle: 'lightcoral',
     name: 'red',
     score: 0,
-  },
+  } as IPlayer,
   green: {
     hexFillStyle: 'lightgreen',
     name: 'green',
     score: 0,
-  },
+  } as IPlayer,
   blue: {
     hexFillStyle: 'lightblue',
     name: 'blue',
     score: 0,
-  },
+  } as IPlayer,
 };
 
 const initialPlayersTurnOrder = Object.values(initialPlayers).map(
@@ -98,6 +98,8 @@ const initialTokens: ITokens = {
   },
 };
 
+export type PlayerName = 'red' | 'green' | 'blue';
+
 export interface IHexes {
   [xIndex: number]: {
     [yIndex: number]: IHexState;
@@ -106,14 +108,14 @@ export interface IHexes {
 
 export interface IHexState {
   height: number;
-  owner?: string;
+  owner?: PlayerName;
   x: number;
   y: number;
 }
 
 export interface IToken {
   fillStyle: string;
-  player: string;
+  player: PlayerName;
   x: number;
   y: number;
 }
@@ -126,7 +128,7 @@ export interface ITokens {
 
 export interface IPlayer {
   hexFillStyle: string;
-  name: string;
+  name: PlayerName;
   score: number;
 }
 
@@ -158,11 +160,11 @@ export interface IValidTokenMoves {
 }
 
 export interface IGameState {
-  activePlayer: string;
+  activePlayer: PlayerName;
   hexes: IHexes;
   isEnd: boolean;
   players: IPlayers;
-  playersTurnOrder: string[];
+  playersTurnOrder: PlayerName[];
   tokens: ITokens;
   validStackMoves: IValidStackMoves;
   validTokenMoves: IValidTokenMoves;

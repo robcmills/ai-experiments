@@ -7,6 +7,7 @@ import {
   IPlayer,
   IToken,
   IValidTokenMove,
+  PlayerName,
   SIN_60,
 } from 'components/Game/constants';
 import { getRandomKey } from 'components/Game/getRandomKey';
@@ -431,7 +432,7 @@ export class GameClass {
     this.context.scale(dpr, dpr);
   }
 
-  private stackHex(xIndex: number, yIndex: number, player: string) {
+  private stackHex(xIndex: number, yIndex: number, player: PlayerName) {
     const hex = this.gameState.hexes[xIndex][yIndex];
     hex.height++;
     hex.owner = player;
