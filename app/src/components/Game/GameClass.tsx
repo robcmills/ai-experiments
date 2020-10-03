@@ -36,7 +36,6 @@ export class GameClass {
   }
 
   private draw() {
-    this.updateValidMoves();
     this.drawBoard();
     this.drawTokens();
     this.drawValidMoves();
@@ -263,6 +262,7 @@ export class GameClass {
 
   private init() {
     this.setupCanvas();
+    this.updateValidMoves();
     this.draw();
   }
 
@@ -278,49 +278,45 @@ export class GameClass {
     this.gameState.validStackMoves = {};
     this.gameState.validTokenMoves = {};
 
-    Object.values(this.gameState.tokens).forEach((row, xIndex) => {
-      Object.values(this.gameState.tokens[xIndex]).forEach(
-        (token: IToken, yIndex) => {
-          if (this.gameState.activePlayer !== token.player) {
-            return;
-          }
-          DIRECTIONS.forEach((direction: Direction) => {
-            let counter = 0;
-            let previousAdjacentHex: IHexState = this.gameState.hexes[token.x][
-              token.y
-            ];
-            let nextAdjacentHex: IHexState | undefined;
-
-            // Can player stack on currently occupied hex?
-            if (previousAdjacentHex.owner !== token.player) {
-              this.addValidStackMove(
-                previousAdjacentHex.x,
-                previousAdjacentHex.y
-              );
-            }
-
-            do {
-              counter++;
-              nextAdjacentHex = this.getAdjacentHex({
-                direction,
-                xIndex: previousAdjacentHex.x,
-                yIndex: previousAdjacentHex.y,
-              });
-              if (
-                nextAdjacentHex &&
-                nextAdjacentHex.height - previousAdjacentHex.height < 2 && // cliffs
-                !this.getTokenAt(nextAdjacentHex.x, nextAdjacentHex.y)
-              ) {
-                this.addValidTokenMove(nextAdjacentHex.x, nextAdjacentHex.y);
-                if (counter < 2) {
-                  this.addValidStackMove(nextAdjacentHex.x, nextAdjacentHex.y);
-                }
-              }
-              previousAdjacentHex = nextAdjacentHex;
-            } while (nextAdjacentHex && counter < 10);
-          });
+    Object.keys(this.gameState.tokens).forEach((xKey) => {
+      const xIndex = parseInt(xKey, 10);
+      Object.keys(this.gameState.tokens[xIndex]).forEach((yKey) => {
+        const yIndex = parseInt(yKey, 10);
+        const token: IToken = this.gameState.tokens[xIndex][yIndex];
+        if (this.gameState.activePlayer !== token.player) {
+          return;
         }
-      );
+        const originHex: IHexState = this.gameState.hexes[token.x][token.y];
+        // Can player stack on currently occupied hex?
+        if (originHex.owner !== token.player) {
+          this.addValidStackMove(originHex.x, originHex.y);
+        }
+
+        DIRECTIONS.forEach((direction: Direction) => {
+          let counter = 0;
+          let previousAdjacentHex: IHexState = originHex;
+          let nextAdjacentHex: IHexState | undefined;
+          do {
+            counter++;
+            nextAdjacentHex = this.getAdjacentHex({
+              direction,
+              xIndex: previousAdjacentHex.x,
+              yIndex: previousAdjacentHex.y,
+            });
+            if (
+              nextAdjacentHex &&
+              nextAdjacentHex.height - previousAdjacentHex.height < 2 && // cliffs
+              !this.getTokenAt(nextAdjacentHex.x, nextAdjacentHex.y)
+            ) {
+              this.addValidTokenMove(nextAdjacentHex.x, nextAdjacentHex.y);
+              if (counter < 2) {
+                this.addValidStackMove(nextAdjacentHex.x, nextAdjacentHex.y);
+              }
+            }
+            previousAdjacentHex = nextAdjacentHex;
+          } while (nextAdjacentHex);
+        });
+      });
     });
   }
 }
