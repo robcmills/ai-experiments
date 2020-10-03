@@ -50,6 +50,9 @@ export class GameClass {
   }
 
   private doRandomMove() {
+    if (this.gameState.isEnd) {
+      return;
+    }
     const r = Math.random();
     if (r < 0.75) {
       if (!this.doRandomStackMove()) {
@@ -460,7 +463,17 @@ export class GameClass {
       });
     });
 
-    if (numberValidStackMoves === 0 && numberValidTokenMoves === 0) {
+    let isMaxScoreReached = false;
+    Object.values(this.gameState.players).forEach((player: IPlayer) => {
+      if (player.score >= this.config.maxScore) {
+        isMaxScoreReached = true;
+      }
+    });
+
+    if (
+      isMaxScoreReached ||
+      (numberValidStackMoves === 0 && numberValidTokenMoves === 0)
+    ) {
       this.gameState.isEnd = true;
     }
   }
