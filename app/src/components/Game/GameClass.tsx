@@ -21,6 +21,13 @@ export class GameClass {
     this.init();
   }
 
+  private addValidStackMove(x: number, y: number) {
+    if (!this.gameState.validStackMoves[x]) {
+      this.gameState.validStackMoves[x] = {};
+    }
+    this.gameState.validStackMoves[x][y] = true;
+  }
+
   private addValidTokenMove(x: number, y: number) {
     if (!this.gameState.validTokenMoves[x]) {
       this.gameState.validTokenMoves[x] = {};
@@ -29,36 +36,41 @@ export class GameClass {
   }
 
   private draw() {
+    this.updateValidMoves();
     this.drawBoard();
     this.drawTokens();
-    this.updateValidMoves();
     this.drawValidMoves();
     this.drawText();
   }
 
   private drawBoard() {
-    Object.values(this.gameState.hexes).forEach((row, xIndex) => {
-      Object.values(this.gameState.hexes[xIndex]).forEach(
-        (hex: IHexState, yIndex) => {
-          const isEvenRow = hex.y % 2 === 0;
-          const x = this.getXCoordFromIndex(isEvenRow, hex.x);
-          const y = this.getYCoordFromIndex(hex.y);
-          this.drawHex({
-            fillStyle: this.gameState.hexFillStyle,
-            lineWidth: this.gameState.hexLineWidth,
-            strokeStyle: this.gameState.hexStrokeStyle,
-            radius: this.gameState.hexRadius,
-            x,
-            y,
-          });
-          this.drawHexIndex({
-            xCoord: x,
-            yCoord: y,
-            xIndex: hex.x,
-            yIndex: hex.y,
-          });
-        }
-      );
+    Object.keys(this.gameState.hexes).forEach((xKey) => {
+      const xIndex = parseInt(xKey, 10);
+      Object.keys(this.gameState.hexes[xIndex]).forEach((yKey) => {
+        const yIndex = parseInt(yKey, 10);
+        const hex: IHexState = this.gameState.hexes[xIndex][yIndex];
+        const isValidStackMove = this.getValidStackMove(xIndex, yIndex);
+        const fillStyle = isValidStackMove
+          ? this.gameState.validStackMoveFillStyle
+          : this.gameState.hexFillStyle;
+        const isEvenRow = hex.y % 2 === 0;
+        const xCoord = this.getXCoordFromIndex(isEvenRow, hex.x);
+        const yCoord = this.getYCoordFromIndex(hex.y);
+        this.drawHex({
+          fillStyle,
+          lineWidth: this.gameState.hexLineWidth,
+          strokeStyle: this.gameState.hexStrokeStyle,
+          radius: this.gameState.hexRadius,
+          x: xCoord,
+          y: yCoord,
+        });
+        this.drawHexIndex({
+          xCoord,
+          yCoord,
+          xIndex: hex.x,
+          yIndex: hex.y,
+        });
+      });
     });
   }
 
@@ -149,19 +161,20 @@ export class GameClass {
     const startAngle = 0;
     const endAngle = 2 * Math.PI;
 
-    Object.values(this.gameState.tokens).forEach((row, xIndex) => {
-      Object.values(this.gameState.tokens[xIndex]).forEach(
-        (token: IToken, yIndex) => {
-          const isEvenRow = token.y % 2 === 0;
-          const x = this.getXCoordFromIndex(isEvenRow, token.x);
-          const y = this.getYCoordFromIndex(token.y);
-          context.fillStyle = token.fillStyle;
-          context.beginPath();
-          context.arc(x, y, radius, startAngle, endAngle);
-          context.closePath();
-          context.fill();
-        }
-      );
+    Object.keys(this.gameState.tokens).forEach((xKey) => {
+      const xIndex = parseInt(xKey, 10);
+      Object.keys(this.gameState.tokens[xIndex]).forEach((yKey) => {
+        const yIndex = parseInt(yKey, 10);
+        const token: IToken = this.gameState.tokens[xIndex][yIndex];
+        const isEvenRow = token.y % 2 === 0;
+        const x = this.getXCoordFromIndex(isEvenRow, token.x);
+        const y = this.getYCoordFromIndex(token.y);
+        context.fillStyle = token.fillStyle;
+        context.beginPath();
+        context.arc(x, y, radius, startAngle, endAngle);
+        context.closePath();
+        context.fill();
+      });
     });
   }
 
@@ -232,6 +245,10 @@ export class GameClass {
     return (this.gameState.tokens[x] || {})[y];
   }
 
+  private getValidStackMove(xIndex: number, yIndex: number) {
+    return (this.gameState.validStackMoves[xIndex] || {})[yIndex];
+  }
+
   private getXCoordFromIndex(isEvenRow: boolean, x: number): number {
     return (
       this.gameState.hexRadius * 3 * x +
@@ -273,6 +290,15 @@ export class GameClass {
               token.y
             ];
             let nextAdjacentHex: IHexState | undefined;
+
+            // Can player stack on currently occupied hex?
+            if (previousAdjacentHex.owner !== token.player) {
+              this.addValidStackMove(
+                previousAdjacentHex.x,
+                previousAdjacentHex.y
+              );
+            }
+
             do {
               counter++;
               nextAdjacentHex = this.getAdjacentHex({
@@ -282,10 +308,13 @@ export class GameClass {
               });
               if (
                 nextAdjacentHex &&
-                nextAdjacentHex.height - previousAdjacentHex.height < 2 &&
+                nextAdjacentHex.height - previousAdjacentHex.height < 2 && // cliffs
                 !this.getTokenAt(nextAdjacentHex.x, nextAdjacentHex.y)
               ) {
                 this.addValidTokenMove(nextAdjacentHex.x, nextAdjacentHex.y);
+                if (counter < 2) {
+                  this.addValidStackMove(nextAdjacentHex.x, nextAdjacentHex.y);
+                }
               }
               previousAdjacentHex = nextAdjacentHex;
             } while (nextAdjacentHex && counter < 10);

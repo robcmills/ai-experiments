@@ -113,6 +113,7 @@ export interface IHexes {
 
 export interface IHexState {
   height: number;
+  owner?: string;
   x: number;
   y: number;
 }
@@ -161,6 +162,7 @@ export interface IGameState {
   players: IPlayer[];
   tokens: ITokens;
   tokenRadius: number;
+  validStackMoveFillStyle: string;
   validStackMoves: IValidMoves;
   validTokenMoves: IValidMoves;
   validTokenMovesFillStyle: string;
@@ -186,6 +188,7 @@ export const initialGameState: IGameState = {
   players: initialPlayers,
   tokens: initialTokens,
   tokenRadius: 4,
+  validStackMoveFillStyle: 'gold',
   validStackMoves: {},
   validTokenMoves: {},
   validTokenMovesFillStyle: 'orange',
