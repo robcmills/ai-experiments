@@ -166,6 +166,7 @@ export interface IGameState {
   hexRadius: number;
   hexStrokeStyle: string;
   hexes: IHexes;
+  isEnd: boolean;
   players: IPlayers;
   tokens: ITokens;
   tokenRadius: number;
@@ -192,6 +193,7 @@ export const initialGameState: IGameState = {
   hexLineWidth: 2,
   hexStrokeStyle: 'white',
   hexRadius: 16,
+  isEnd: false,
   players: initialPlayers,
   tokens: initialTokens,
   tokenRadius: 4,

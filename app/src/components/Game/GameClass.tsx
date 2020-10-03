@@ -54,6 +54,7 @@ export class GameClass {
       if (stackMove) {
         const [xIndex, yIndex] = stackMove;
         this.stackHex(xIndex, yIndex, this.gameState.activePlayer);
+        // todo: this.rotateActivePlayer();
         this.gameState.activePlayer =
           this.gameState.activePlayer === 'green' ? 'blue' : 'green';
         this.update();
@@ -209,8 +210,27 @@ export class GameClass {
     const context = this.context;
     context.fillStyle = 'black';
     context.font = `${this.gameState.fontSize} ${this.gameState.font}`;
+
+    // Scores
     context.fillText(`Scores: ${scores}`, marginLeft, lineHeight);
-    context.fillText(`${activePlayer} to play`, marginLeft, lineHeight * 2);
+
+    // Active Player / Winner
+    let activePlayerText = '';
+    if (this.gameState.isEnd) {
+      const sortedPlayers: IPlayer[] = Object.values(
+        this.gameState.players
+      ).sort((a: IPlayer, b: IPlayer) => (a.score < b.score ? 1 : -1));
+      const first: IPlayer = sortedPlayers[0];
+      const second: IPlayer = sortedPlayers[1];
+      if (first.score === second.score) {
+        activePlayerText = 'draw';
+      } else {
+        activePlayerText = `${first.name} wins`;
+      }
+    } else {
+      activePlayerText = `${activePlayer} to play`;
+    }
+    context.fillText(activePlayerText, marginLeft, lineHeight * 2);
   }
 
   private drawTokens() {
@@ -360,7 +380,25 @@ export class GameClass {
   private update() {
     this.updateScores();
     this.updateValidMoves();
+    this.updateGameEnd();
     this.draw();
+  }
+
+  private updateGameEnd() {
+    let numberValidStackMoves = 0;
+    Object.keys(this.gameState.validStackMoves).forEach((xKey) => {
+      const xIndex = parseInt(xKey, 10);
+      Object.keys(this.gameState.validStackMoves[xIndex]).forEach((yKey) => {
+        const yIndex = parseInt(yKey, 10);
+        if (this.gameState.validStackMoves[xIndex][yIndex]) {
+          numberValidStackMoves++;
+        }
+      });
+    });
+
+    if (numberValidStackMoves === 0) {
+      this.gameState.isEnd = true;
+    }
   }
 
   private updateScores() {
