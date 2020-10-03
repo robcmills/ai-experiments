@@ -52,21 +52,32 @@ export class GameClass {
   private doRandomMove() {
     const r = Math.random();
     if (r < 0.75) {
-      const stackMove = this.getRandomStackMove();
-      if (stackMove) {
-        const [xIndex, yIndex] = stackMove;
-        this.stackHex(xIndex, yIndex, this.gameState.activePlayer);
-        this.rotateActivePlayer();
-        this.update();
+      if (!this.doRandomStackMove()) {
+        this.doRandomTokenMove();
       }
     } else {
-      const tokenMove = this.getRandomTokenMove();
-      if (tokenMove) {
-        this.moveToken(tokenMove);
-        this.rotateActivePlayer();
-        this.update();
-      }
+      this.doRandomTokenMove();
     }
+  }
+
+  private doRandomStackMove(): boolean {
+    const stackMove = this.getRandomStackMove();
+    if (stackMove) {
+      const [xIndex, yIndex] = stackMove;
+      this.stackHex(xIndex, yIndex, this.gameState.activePlayer);
+      this.rotateActivePlayer();
+      this.update();
+    }
+    return !!stackMove;
+  }
+
+  private doRandomTokenMove() {
+    const tokenMove = this.getRandomTokenMove();
+    if (tokenMove) {
+      this.moveToken(tokenMove);
+      this.rotateActivePlayer();
+    }
+    this.update();
   }
 
   private draw() {
@@ -438,7 +449,18 @@ export class GameClass {
       });
     });
 
-    if (numberValidStackMoves === 0) {
+    let numberValidTokenMoves = 0;
+    Object.keys(this.gameState.validTokenMoves).forEach((xKey) => {
+      const xIndex = parseInt(xKey, 10);
+      Object.keys(this.gameState.validTokenMoves[xIndex]).forEach((yKey) => {
+        const yIndex = parseInt(yKey, 10);
+        if (this.gameState.validTokenMoves[xIndex][yIndex]) {
+          numberValidTokenMoves++;
+        }
+      });
+    });
+
+    if (numberValidStackMoves === 0 && numberValidTokenMoves === 0) {
       this.gameState.isEnd = true;
     }
   }
