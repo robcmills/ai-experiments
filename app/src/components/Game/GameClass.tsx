@@ -8,6 +8,7 @@ import {
   IToken,
   SIN_60,
 } from 'components/Game/constants';
+import { getRandomKey } from 'components/Game/getRandomKey';
 
 export class GameClass {
   private canvas: HTMLCanvasElement;
@@ -35,7 +36,32 @@ export class GameClass {
     this.gameState.validTokenMoves[x][y] = true;
   }
 
+  private bindEventListeners() {
+    document.addEventListener('keydown', this.handleKeydown.bind(this));
+  }
+
+  private clearCanvas() {
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  private doRandomMove() {
+    const r = Math.random();
+    if (r < 1) {
+      const stackMove = this.getRandomStackMove();
+      if (stackMove) {
+        const [xIndex, yIndex] = stackMove;
+        this.gameState.hexes[xIndex][
+          yIndex
+        ].owner = this.gameState.activePlayer;
+        this.gameState.activePlayer =
+          this.gameState.activePlayer === 'green' ? 'blue' : 'green';
+        this.update();
+      }
+    }
+  }
+
   private draw() {
+    this.clearCanvas();
     this.drawBoard();
     this.drawTokens();
     this.drawValidMoves();
@@ -49,9 +75,12 @@ export class GameClass {
         const yIndex = parseInt(yKey, 10);
         const hex: IHexState = this.gameState.hexes[xIndex][yIndex];
         const isValidStackMove = this.getValidStackMove(xIndex, yIndex);
-        const fillStyle = isValidStackMove
+        let fillStyle = isValidStackMove
           ? this.gameState.validStackMoveFillStyle
           : this.gameState.hexFillStyle;
+        if (hex.owner) {
+          fillStyle = this.gameState.players[hex.owner].hexFillStyle;
+        }
         const isEvenRow = hex.y % 2 === 0;
         const xCoord = this.getXCoordFromIndex(isEvenRow, hex.x);
         const yCoord = this.getYCoordFromIndex(hex.y);
@@ -143,10 +172,13 @@ export class GameClass {
     const activePlayer = this.gameState.activePlayer;
     const marginLeft = 10;
     const lineHeight = 16;
-    const scores = this.gameState.players.reduce((acc, player: IPlayer) => {
-      acc += `${player.name}:${player.score} `;
-      return acc;
-    }, '');
+    const scores = Object.values(this.gameState.players).reduce(
+      (acc, player: IPlayer) => {
+        acc += `${player.name}:${player.score} `;
+        return acc;
+      },
+      ''
+    );
     const context = this.context;
     context.fillStyle = 'black';
     context.font = `${this.gameState.fontSize} ${this.gameState.font}`;
@@ -240,6 +272,17 @@ export class GameClass {
     return (this.gameState.hexes[adjacentX] || {})[adjacentY];
   }
 
+  private getRandomStackMove() {
+    const xKey: string = getRandomKey(this.gameState.validStackMoves);
+    if (!xKey) {
+      return;
+    }
+    const xIndex = parseInt(xKey, 10);
+    const yKey = getRandomKey(this.gameState.validStackMoves[xIndex]);
+    const yIndex = parseInt(yKey, 10);
+    return [xIndex, yIndex];
+  }
+
   private getTokenAt(x: number, y: number) {
     return (this.gameState.tokens[x] || {})[y];
   }
@@ -260,10 +303,17 @@ export class GameClass {
     return SIN_60 * this.gameState.hexRadius * y + this.gameState.center.y;
   }
 
+  private handleKeydown(event: KeyboardEvent) {
+    if (event.key === 'ArrowRight') {
+      this.doRandomMove();
+    }
+  }
+
   private init() {
     this.setupCanvas();
     this.updateValidMoves();
     this.draw();
+    this.bindEventListeners();
   }
 
   private setupCanvas() {
@@ -272,6 +322,11 @@ export class GameClass {
     canvas.height = this.gameState.canvas.height * dpr;
     canvas.width = this.gameState.canvas.width * dpr;
     this.context.scale(dpr, dpr);
+  }
+
+  private update() {
+    this.updateValidMoves();
+    this.draw();
   }
 
   private updateValidMoves() {
@@ -309,7 +364,7 @@ export class GameClass {
               !this.getTokenAt(nextAdjacentHex.x, nextAdjacentHex.y)
             ) {
               this.addValidTokenMove(nextAdjacentHex.x, nextAdjacentHex.y);
-              if (counter < 2) {
+              if (counter < 2 && nextAdjacentHex.owner !== token.player) {
                 this.addValidStackMove(nextAdjacentHex.x, nextAdjacentHex.y);
               }
             }

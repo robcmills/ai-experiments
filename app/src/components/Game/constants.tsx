@@ -49,16 +49,18 @@ const initialHexes = [
   return acc;
 }, {} as IHexes);
 
-const initialPlayers = [
-  {
+const initialPlayers = {
+  green: {
+    hexFillStyle: 'lightgreen',
     name: 'green',
     score: 0,
   },
-  {
+  blue: {
+    hexFillStyle: 'lightblue',
     name: 'blue',
     score: 0,
   },
-];
+};
 
 const initialTokens: ITokens = {
   0: {
@@ -132,8 +134,13 @@ export interface ITokens {
 }
 
 export interface IPlayer {
+  hexFillStyle: string;
   name: string;
   score: number;
+}
+
+export interface IPlayers {
+  [name: string]: IPlayer;
 }
 
 export interface IValidMoves {
@@ -159,7 +166,7 @@ export interface IGameState {
   hexRadius: number;
   hexStrokeStyle: string;
   hexes: IHexes;
-  players: IPlayer[];
+  players: IPlayers;
   tokens: ITokens;
   tokenRadius: number;
   validStackMoveFillStyle: string;
