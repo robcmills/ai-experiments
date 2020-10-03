@@ -62,6 +62,10 @@ const initialPlayers = {
   },
 };
 
+const initialPlayersTurnOrder = Object.values(initialPlayers).map(
+  (player: IPlayer) => player.name
+);
+
 const initialTokens: ITokens = {
   0: {
     2: {
@@ -168,6 +172,7 @@ export interface IGameState {
   hexes: IHexes;
   isEnd: boolean;
   players: IPlayers;
+  playersTurnOrder: string[];
   tokens: ITokens;
   tokenRadius: number;
   validStackMoveFillStyle: string;
@@ -195,6 +200,7 @@ export const initialGameState: IGameState = {
   hexRadius: 16,
   isEnd: false,
   players: initialPlayers,
+  playersTurnOrder: initialPlayersTurnOrder,
   tokens: initialTokens,
   tokenRadius: 4,
   validStackMoveFillStyle: 'gold',

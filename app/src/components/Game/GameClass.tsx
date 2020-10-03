@@ -54,9 +54,7 @@ export class GameClass {
       if (stackMove) {
         const [xIndex, yIndex] = stackMove;
         this.stackHex(xIndex, yIndex, this.gameState.activePlayer);
-        // todo: this.rotateActivePlayer();
-        this.gameState.activePlayer =
-          this.gameState.activePlayer === 'green' ? 'blue' : 'green';
+        this.rotateActivePlayer();
         this.update();
       }
     }
@@ -361,6 +359,19 @@ export class GameClass {
     this.updateValidMoves();
     this.draw();
     this.bindEventListeners();
+  }
+
+  private rotateActivePlayer() {
+    const currentTurnOrderIndex = this.gameState.playersTurnOrder.indexOf(
+      this.gameState.activePlayer
+    );
+    const nextTurnOrderIndex =
+      currentTurnOrderIndex >= this.gameState.playersTurnOrder.length - 1
+        ? 0
+        : currentTurnOrderIndex + 1;
+    this.gameState.activePlayer = this.gameState.playersTurnOrder[
+      nextTurnOrderIndex
+    ];
   }
 
   private setupCanvas() {
