@@ -1,8 +1,11 @@
 import { Network } from 'network/Network';
-import { Neuron } from 'network/Neuron';
+import { Neuron, NeuronType } from 'network/Neuron';
 import { Link } from 'network/Link';
 
 const CIRCLE_END_ANGLE = 2 * Math.PI;
+const FONT = 'monospace';
+const FONT_LINE_HEIGHT = 8;
+const FONT_SIZE = `${FONT_LINE_HEIGHT}px`;
 const LINK_LINE_WIDTH = 1;
 const LINK_STROKE_STYLE = 'lightgray';
 const NETWORK_WIDTH = 100;
@@ -36,6 +39,10 @@ export class NetworkVisualizer {
 
   constructor(parent: HTMLElement) {
     parent.appendChild(this.canvas);
+    const dpr = window.devicePixelRatio || 1;
+    this.canvas.height = window.innerHeight;
+    this.canvas.width = window.innerWidth;
+    this.context.scale(dpr, dpr);
   }
 
   calculateLayout() {
@@ -79,6 +86,7 @@ export class NetworkVisualizer {
   drawInputNodes() {
     this.network.inputs.forEach((neuron: Neuron, index: number) => {
       this.drawNeuron({
+        neuron,
         x: OFFSET_X,
         y: OFFSET_Y + index * NEURON_RADIUS * 3,
       });
@@ -88,13 +96,15 @@ export class NetworkVisualizer {
   drawOutputNodes() {
     this.network.outputs.forEach((neuron: Neuron, index: number) => {
       this.drawNeuron({
+        neuron,
         x: OFFSET_X + NETWORK_WIDTH,
         y: OFFSET_Y + index * NEURON_RADIUS * 3,
       });
     });
   }
 
-  drawNeuron({ x, y }: { x: number; y: number }) {
+  drawNeuron({ neuron, x, y }: { neuron: Neuron; x: number; y: number }) {
+    // Draw circle
     this.context.beginPath();
     this.context.arc(x, y, NEURON_RADIUS, 0, CIRCLE_END_ANGLE);
     this.context.closePath();
@@ -103,6 +113,28 @@ export class NetworkVisualizer {
     this.context.strokeStyle = NEURON_STROKE_STYLE;
     this.context.lineWidth = NEURON_LINE_WIDTH;
     this.context.stroke();
+    // Draw info
+    let xOffset = NEURON_RADIUS * 1.5;
+    if (neuron.type === NeuronType.Input) {
+      xOffset *= -2;
+    }
+    this.context.fillStyle = 'black';
+    this.context.font = `${FONT_SIZE} ${FONT}`;
+    this.context.fillText(
+      `i:${neuron.id}`,
+      x + xOffset,
+      y - NEURON_RADIUS - 2 + FONT_LINE_HEIGHT
+    );
+    this.context.fillText(
+      `s:${neuron.state}`,
+      x + xOffset,
+      y - NEURON_RADIUS - 2 + FONT_LINE_HEIGHT * 2
+    );
+    this.context.fillText(
+      `a:${neuron.activation}`,
+      x + xOffset,
+      y - NEURON_RADIUS - 2 + FONT_LINE_HEIGHT * 3
+    );
   }
 
   visualize(network: Network) {
