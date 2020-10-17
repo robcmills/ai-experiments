@@ -1,6 +1,13 @@
 import { Network } from 'network/Network';
 import { connectNeurons, Neuron, NeuronType } from 'network/Neuron';
 
+const xorTrainingData = [
+  [[0, 0], [0]],
+  [[0, 1], [1]],
+  [[1, 0], [1]],
+  [[1, 1], [0]],
+];
+
 export class XorNetwork {
   network: Network = new Network();
 
@@ -26,4 +33,16 @@ export class XorNetwork {
       });
     });
   }
+
+  computeFitness() {
+    let fitness = 2;
+    xorTrainingData.sort(() => Math.random() - 0.5);
+    xorTrainingData.forEach(([inputs, expected]) => {
+      const [output] = this.network.activate(inputs);
+      fitness -= Math.abs(output - expected[0]);
+    });
+    return fitness ** 2;
+  }
+
+  run() {}
 }
