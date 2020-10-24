@@ -2,57 +2,61 @@ import { Organism } from 'neat/Organism';
 import { Species } from 'neat/Species';
 import { descending } from 'util/sortFunctions';
 import { Fitness } from 'neat/Fitness';
+import { innovation } from 'neat/innovation';
 
 export interface IPopulationParameters {
-  // When Species starts to be penalized
-  dropoffAge: number;
-  // Excess coefficient used to compute compatibility
-  excessCoefficient: number;
-  // Disjoint coefficient used to compute compatibility
-  disjointCoefficient: number;
-  // Weight difference coefficient used to compute compatibility
-  weightDifferenceCoefficient: number;
-  // Threshold to consider two species different
-  compatibilityThreshold: number;
-  // Compatibility threshold modifier for each generation. Set to 0 to disable.
-  compatibilityModifier: number;
-  // Number of species to increase/decrease the compatibility threshold
-  compatibilityModifierTarget: number;
-  // Whether to adjust the threshold used to compute compatibility
-  adjustCompatibilityThreshold: boolean;
-  // The power of a connection weight mutation
-  mutationPower: number;
-  // Probability for a disabled connection to be re-enabled
-  reEnableGeneProbability: number;
-  // Probability for genome to have its weights mutated
-  mutateConnectionWeightsProbability: number;
-  // Chance for genome weight to be uniformly perturbed
-  genomeWeightPerturbed: number;
-  // Fitness boost for young ages (less than 10)
-  ageSignificance: number;
-  // Percent of average fitness for survival
-  survivalThreshold: number;
-  // Size of population
-  populationSize: number;
-  // Probability of a non-mating reproduction
-  mutateOnlyProbability: number;
-  // Probability of an "add node" mutation
-  mutateAddNodeProbability: number;
-  // Probability of an "add connection" mutation
-  mutateAddConnectionProbability: number;
-  // Probability of a genome being toggled
-  mutateToggleEnableProbability: number;
-  // Probability of a mate being outside species
-  interSpeciesMateRate: number;
-  // Threshold to consider the network valid
-  fitnessThreshold: number;
-  // Number of attempts to find an open link
-  addConnectionTries: number;
-  // Generator of innovation numbers
-  innovation: IterableIterator<number>;
-  // If true, only feed-forward networks are allowed
-  feedForwardOnly: boolean;
+  addConnectionTries: number; // Number of attempts to find an open link
+  adjustCompatibilityThreshold: boolean; // Whether to adjust the threshold used to compute compatibility
+  ageSignificance: number; // Fitness boost for young ages (less than 10)
+  compatibilityModifier: number; // Compatibility threshold modifier for each generation. Set to 0 to disable.
+  compatibilityModifierTarget: number; // Number of species to increase/decrease the compatibility threshold
+  compatibilityThreshold: number; // Threshold to consider two species different
+  disjointCoefficient: number; // Disjoint coefficient used to compute compatibility
+  dropoffAge: number; // When Species starts to be penalized
+  excessCoefficient: number; // Excess coefficient used to compute compatibility
+  feedForwardOnly: boolean; // If true, only feed-forward networks are allowed
+  fitnessThreshold: number; // Threshold to consider the network valid
+  genomeWeightPerturbed: number; // Chance for genome weight to be uniformly perturbed
+  innovation: IterableIterator<number>; // Generator of innovation numbers
+  interSpeciesMateRate: number; // Probability of a mate being outside species
+  mutateAddConnectionProbability: number; // Probability of an "add connection" mutation
+  mutateAddNodeProbability: number; // Probability of an "add node" mutation
+  mutateConnectionWeightsProbability: number; // Probability for genome to have its weights mutated
+  mutateOnlyProbability: number; // Probability of a non-mating reproduction
+  mutateToggleEnableProbability: number; // Probability of a genome being toggled
+  mutationPower: number; // The power of a connection weight mutation
+  populationSize: number; // Size of population
+  reEnableGeneProbability: number; // Probability for a disabled connection to be re-enabled
+  survivalThreshold: number; // Percent of average fitness for survival
+  weightDifferenceCoefficient: number; // Weight difference coefficient used to compute compatibility
 }
+
+export const defaultPopulationParameters: IPopulationParameters = {
+  addConnectionTries: 20,
+  adjustCompatibilityThreshold: false,
+  ageSignificance: 1,
+  compatibilityModifier: 0.3,
+  compatibilityModifierTarget: 10,
+  compatibilityThreshold: 3.0,
+  disjointCoefficient: 1.0,
+  dropoffAge: 15,
+  excessCoefficient: 1.0,
+  feedForwardOnly: true,
+  fitnessThreshold: 0.9,
+  genomeWeightPerturbed: 0.9,
+  innovation: innovation(),
+  interSpeciesMateRate: 0.001,
+  mutateAddConnectionProbability: 0.05,
+  mutateAddNodeProbability: 0.03,
+  mutateConnectionWeightsProbability: 0.9,
+  mutateOnlyProbability: 0.2,
+  mutateToggleEnableProbability: 0,
+  mutationPower: 2.5,
+  populationSize: 100,
+  reEnableGeneProbability: 0.05,
+  survivalThreshold: 0.2,
+  weightDifferenceCoefficient: 1,
+};
 
 export class Population {
   generation: number = 1;
@@ -98,9 +102,7 @@ export class Population {
 
   epoch() {
     this.generation++;
-
     const { species, parameters, generation } = this;
-
     const organisms = [...this.organisms];
 
     // Adjust compatibility threshold
@@ -118,8 +120,8 @@ export class Population {
       );
     }
 
-    let overallAverage = 0;
     // Adjust fitness of species' organisms
+    let overallAverage = 0;
     species.forEach((species) => {
       species.adjustFitness(parameters);
       overallAverage += species.averageFitness;

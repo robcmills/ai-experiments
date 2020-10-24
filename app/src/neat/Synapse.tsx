@@ -1,35 +1,21 @@
 import { Neuron } from 'neat/Neuron';
 
-export interface ISynapseContructorParams {
-  enabled: boolean;
-  from: Neuron;
-  innovation: number;
-  to: Neuron;
-  weight: number;
-}
-
 export class Synapse {
-  enabled: boolean;
+  enabled = true;
   from: Neuron;
-  innovation: number;
+  innovation = 0;
   to: Neuron;
-  weight: number;
+  weight = 0;
 
-  constructor(params: Partial<ISynapseContructorParams>) {
-    Object.assign(this, params);
+  constructor(synapse: Partial<Synapse>) {
+    Object.assign(this, synapse);
+  }
+
+  copy(): Synapse {
+    return new Synapse(this);
   }
 
   disable() {
     this.enabled = false;
-  }
-
-  copy(): Synapse {
-    return new Synapse({
-      enabled: this.enabled,
-      from: this.from,
-      innovation: this.innovation,
-      to: this.to,
-      weight: this.weight,
-    });
   }
 }

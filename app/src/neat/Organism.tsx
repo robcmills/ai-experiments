@@ -7,52 +7,33 @@ import { Synapse } from 'neat/Synapse';
 import { randomBool } from 'util/random';
 import { isRecurrent } from 'util/isRecurrent';
 
-// todo: convert Genome to class property instead of extending
 /**
  * Organisms are Genomes and Networks with fitness info.
  * i.e. The genotype and phenotype together
  */
-export class Organism extends Genome {
-  expectedOffspring: number = 0;
-  fitness: number;
-  generation: number = 0;
-  kill: boolean = false;
-  originalFitness: number = 0;
+export class Organism {
+  expectedOffspring = 0;
+  fitness = 0;
+  generation = 0;
+  genome: Genome;
+  kill = false;
+  originalFitness = 0;
   species?: Species;
 
-  private network?: Network;
+  // constructor(genome: Genome) {
+  //   this.genome = genome;
+  // }
 
-  constructor(fitness: number = 0, generation: number = 0) {
-    super();
-    this.fitness = fitness;
-    this.generation = generation;
-  }
-
-  copy(fitness: number = 0, generation: number = 0): Organism {
-    let clone = super.copy() as Organism;
-    clone.fitness = fitness;
+  copy(): Organism {
+    let clone = new Organism();
+    clone.expectedOffspring = this.expectedOffspring;
+    clone.fitness = this.fitness;
+    clone.generation = this.generation;
+    clone.genome = this.genome.copy();
+    clone.kill = this.kill;
     clone.originalFitness = this.originalFitness;
-    clone.generation = generation;
-
+    clone.species = this.species;
     return clone;
-  }
-
-  // todo: why is this necessary?
-  getNetwork() {
-    if (!this.network) {
-      const neurons = this.neurons; // .map(({ type, id }) => ({ type, id }));
-      const synapses = this.synapses.sort(
-        ascending((s: Synapse) => s.innovation)
-      );
-      // .map(({ from, to, weight, enabled }) => ({
-      //   from: from.id,
-      //   to: to.id,
-      //   weight,
-      //   enabled,
-      // }));
-      this.network = new Network({ neurons, synapses });
-    }
-    return this.network!;
   }
 
   // Mate 2 organisms
@@ -76,7 +57,7 @@ export class Organism extends Genome {
     // Ensure that all inputs and outputs are added to the organism
     hFitParent.neurons.forEach((neuron) => {
       if (neuron.isInput || neuron.isOutput) {
-        child.addNode(neuron.copy());
+        child.addNeuron(neuron.copy());
       }
     });
 
@@ -117,8 +98,8 @@ export class Organism extends Genome {
         connection.from = connection.from.copy();
         connection.to = connection.to.copy();
 
-        child.addNode(connection.from);
-        child.addNode(connection.to);
+        child.addNeuron(connection.from);
+        child.addNeuron(connection.to);
       });
 
     return child;

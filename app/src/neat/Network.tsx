@@ -1,4 +1,3 @@
-import { activateNeuron } from 'network/Neuron';
 import { Synapse } from 'neat/Synapse';
 import { Neuron, NeuronType } from 'neat/Neuron';
 
@@ -9,59 +8,80 @@ export class Network {
   state: [any, any] = [{}, {}]; // todo: understand state
   synapseMap: Map<number, Synapse> = new Map();
 
-  constructor({
-    neurons,
-    synapses,
-  }: {
-    neurons: Neuron[];
-    synapses: Synapse[];
-  }) {
-    const inputs: Neuron[] = [];
-    const outputs: Neuron[] = [];
+  get neurons(): Neuron[] {
+    return Array.from(this.neuronMap.values());
+  }
 
-    neurons.forEach(({ type, id }) => {
-      const neuron = new Neuron(type, id);
-      this.neuronMap.set(id, neuron);
-      switch (type) {
-        case NeuronType.Bias:
-        case NeuronType.Input:
-          inputs.push(neuron);
-          break;
-        case NeuronType.Output:
-          outputs.push(neuron);
-          break;
-      }
-      this.state[0][neuron.id] = 0;
-      this.state[1][neuron.id] = 0;
-    });
+  get synapses(): Synapse[] {
+    return Array.from(this.synapseMap.values());
+  }
 
-    synapses
-      .filter(({ enabled }) => enabled)
-      .forEach((s) => {
-        const from = this.neuronMap.get(s.from.id)!;
-        const to = this.neuronMap.get(s.to.id)!;
-        const synapse = new Synapse({
-          from,
-          to,
-          weight: s.weight,
-          enabled: s.enabled,
-        });
-        from.out.push(synapse);
-        to.in.push(synapse);
-      });
-
-    this.inputs = inputs;
-    this.outputs = outputs;
+  get enabledSynapses(): Synapse[] {
+    return this.synapses.filter((s) => s.enabled);
   }
 
   activate(inputs: number[]): number[] {
     this.inputs.forEach((neuron: Neuron, index: number) => {
       neuron.activate(inputs[index]);
     });
-    const activations: number[] = [];
-    this.outputs.forEach((neuron: Neuron) => {
-      activations.push(neuron.activate());
+    this.neurons.forEach((neuron) => {
+      if (!neuron.isInput && !neuron.isOutput) {
+        neuron.activate();
+      }
     });
-    return activations;
+    return this.outputs.map((neuron: Neuron) => neuron.activate());
+  }
+
+  addNeuron(neuron: Neuron) {
+    this.neuronMap.set(neuron.id, neuron);
+    switch (neuron.type) {
+      case NeuronType.Bias:
+      case NeuronType.Input:
+        this.inputs.push(neuron);
+        break;
+      case NeuronType.Output:
+        this.outputs.push(neuron);
+        break;
+    }
+  }
+
+  addNeurons(neurons: Neuron[]) {
+    neurons.forEach((neuron) => {
+      this.addNeuron(neuron);
+    });
+  }
+
+  addSynapse(synapse: Synapse) {
+    this.synapseMap.set(synapse.innovation, synapse);
+  }
+
+  addSynapses(synapses: Synapse[]) {
+    synapses.forEach((synapse) => {
+      this.addSynapse(synapse);
+    });
+  }
+
+  copy(): Network {
+    const networkCopy = new Network();
+    this.neurons.forEach((neuron) => {
+      networkCopy.addNeuron(neuron.copy());
+    });
+    this.synapses.forEach((synapse) => {
+      const synapseCopy = synapse.copy();
+      synapseCopy.from = this.neuronMap.get(synapseCopy.from.id);
+      synapseCopy.to = this.neuronMap.get(synapseCopy.to.id);
+      networkCopy.addSynapse(synapseCopy);
+    });
+    networkCopy.neurons.forEach((neuron) => {
+      neuron.inputs = neuron.inputs.reduce((acc, synapse) => {
+        acc.push(networkCopy.synapseMap.get(synapse.innovation));
+        return acc;
+      }, []);
+      neuron.outputs = neuron.outputs.reduce((acc, synapse) => {
+        acc.push(networkCopy.synapseMap.get(synapse.innovation));
+        return acc;
+      }, []);
+    });
+    return networkCopy;
   }
 }

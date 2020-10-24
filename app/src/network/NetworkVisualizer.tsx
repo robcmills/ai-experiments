@@ -1,13 +1,13 @@
-import { Network } from 'network/Network';
-import { Neuron, NeuronType } from 'network/Neuron';
-import { Link } from 'network/Link';
+import { Network } from 'neat/Network';
+import { Neuron, NeuronType } from 'neat/Neuron';
+import { Synapse } from 'neat/Synapse';
 
 const CIRCLE_END_ANGLE = 2 * Math.PI;
 const FONT = 'monospace';
 const FONT_LINE_HEIGHT = 8;
 const FONT_SIZE = `${FONT_LINE_HEIGHT}px`;
-const LINK_LINE_WIDTH = 1;
-const LINK_STROKE_STYLE = 'lightgray';
+const SYNAPSE_LINE_WIDTH = 1;
+const SYNAPSE_STROKE_STYLE = 'lightgray';
 const NETWORK_WIDTH = 100;
 const NEURON_LINE_WIDTH = 2;
 const NEURON_FILL_STYLE = 'lightblue';
@@ -23,7 +23,7 @@ interface LayoutNeuron {
 }
 
 interface NeuronMap {
-  [id: number]: LayoutNeuron;
+  [id: string]: LayoutNeuron;
 }
 
 interface Point2D {
@@ -67,15 +67,15 @@ export class NetworkVisualizer {
     this.context.moveTo(from.x, from.y);
     this.context.lineTo(to.x, to.y);
     this.context.closePath();
-    this.context.strokeStyle = LINK_STROKE_STYLE;
-    this.context.lineWidth = LINK_LINE_WIDTH;
+    this.context.strokeStyle = SYNAPSE_STROKE_STYLE;
+    this.context.lineWidth = SYNAPSE_LINE_WIDTH;
     this.context.stroke();
   }
 
-  drawLinks() {
-    this.network.links.forEach((link: Link, index: number) => {
-      const from = this.neuronMap[link.from.id];
-      const to = this.neuronMap[link.to.id];
+  drawSynapses() {
+    this.network.synapses.forEach((synapse: Synapse, index: number) => {
+      const from = this.neuronMap[synapse.from.id];
+      const to = this.neuronMap[synapse.to.id];
       this.drawLine({
         from: { x: from.x, y: from.y },
         to: { x: to.x, y: to.y },
@@ -141,7 +141,7 @@ export class NetworkVisualizer {
     console.log('visualize', network);
     this.network = network;
     this.calculateLayout();
-    this.drawLinks();
+    this.drawSynapses();
     this.drawInputNodes();
     this.drawOutputNodes();
   }

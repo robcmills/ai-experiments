@@ -1,5 +1,12 @@
-import { Network } from 'network/Network';
-import { connectNeurons, Neuron, NeuronType } from 'network/Neuron';
+import { Network } from 'neat/Network';
+import {
+  defaultPopulationParameters,
+  IPopulationParameters,
+  Population,
+} from 'neat/Population';
+import { Neuron, NeuronType } from 'neat/Neuron';
+import { Synapse } from 'neat/Synapse';
+import { Organism } from 'neat/Organism';
 
 const xorTrainingData = [
   [[0, 0], [0]],
@@ -8,31 +15,31 @@ const xorTrainingData = [
   [[1, 1], [0]],
 ];
 
+const params: IPopulationParameters = {
+  ...defaultPopulationParameters,
+  adjustCompatibilityThreshold: true,
+  compatibilityModifierTarget: 30,
+  disjointCoefficient: 0.5,
+  excessCoefficient: 2,
+  feedForwardOnly: true,
+  fitnessThreshold: 15.9,
+  populationSize: 10,
+  weightDifferenceCoefficient: 1,
+};
+
+const neurons = [
+  new Neuron(NeuronType.Input, '0'),
+  new Neuron(NeuronType.Input, '1'),
+  new Neuron(NeuronType.Output, '2'),
+];
+
+const synapses = [
+  new Synapse({ from: neurons[0], to: neurons[2] }),
+  new Synapse({ from: neurons[1], to: neurons[2] }),
+];
+
 export class XorNetwork {
-  network: Network = new Network();
-
-  constructor() {
-    const inputSize = 2;
-    const outputSize = 1;
-    let neuronId = 0;
-
-    for (let i = 0; i < inputSize; i++) {
-      const neuron = new Neuron({ id: neuronId++, type: NeuronType.Input });
-      this.network.inputs.push(neuron);
-      this.network.neuronMap.set(neuron.id, neuron);
-    }
-    for (let i = 0; i < outputSize; i++) {
-      const neuron = new Neuron({ id: neuronId++, type: NeuronType.Output });
-      this.network.outputs.push(neuron);
-      this.network.neuronMap.set(neuron.id, neuron);
-    }
-
-    this.network.inputs.forEach((from: Neuron) => {
-      this.network.outputs.forEach((to: Neuron) => {
-        this.network.links.push(connectNeurons(from, to));
-      });
-    });
-  }
+  network: Network = new Network({ neurons, synapses });
 
   computeFitness() {
     let fitness = 2;
@@ -44,5 +51,11 @@ export class XorNetwork {
     return fitness ** 2;
   }
 
-  run() {}
+  run() {
+    const organism = new Organism(this.network);
+    console.log('organism', organism);
+    const population = new Population(params);
+    population.populate(organism);
+    console.log('population', population);
+  }
 }

@@ -12,17 +12,16 @@ export enum NeuronType {
 export class Neuron {
   activation = 0;
   bias = 0;
-  id: string;
-  in: Synapse[] = [];
-  out: Synapse[] = [];
+  id: string = uuid();
+  inputs: Synapse[] = [];
+  outputs: Synapse[] = [];
   squash = relu;
   state = 0;
-  type: NeuronType;
+  type: NeuronType = NeuronType.Hidden;
   value = 0;
 
-  constructor(type: NeuronType, id = uuid()) {
-    this.id = id;
-    this.type = type;
+  constructor(neuron?: Partial<Neuron>) {
+    Object.assign(this, neuron);
   }
 
   get isInput() {
@@ -34,7 +33,7 @@ export class Neuron {
   }
 
   copy(): Neuron {
-    return new Neuron(this.type, this.id);
+    return new Neuron(this);
   }
 
   /**
@@ -50,7 +49,7 @@ export class Neuron {
     } else if (this.type === NeuronType.Input) {
       this.activation = 0;
     } else {
-      this.in.forEach((synapse: Synapse) => {
+      this.inputs.forEach((synapse: Synapse) => {
         this.state += synapse.from.activation * synapse.weight;
       });
       this.activation = this.squash(this.state);

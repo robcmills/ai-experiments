@@ -6,80 +6,20 @@ import { isRecurrent } from 'util/isRecurrent';
 import { random } from 'util/random';
 import { uuid } from 'util/uuid';
 import { mean } from 'util/mean';
+import { Network } from 'neat/Network';
 
 export class Genome {
-  id: string;
-  neuronMap: Map<string, Neuron> = new Map();
-  synapseMap: Map<number, Synapse> = new Map();
-
-  constructor(id: string = uuid()) {
-    this.id = id;
-  }
-
-  get neurons(): Neuron[] {
-    return Array.from(this.neuronMap.values());
-  }
-
-  get synapses(): Synapse[] {
-    return Array.from(this.synapseMap.values());
-  }
-
-  get enabledSynapses(): Synapse[] {
-    return this.synapses.filter((s) => s.enabled);
-  }
-
-  // Compute the compatibility distance between two genomes
-  static compatibility(
-    genome1: Genome,
-    genome2: Genome,
-    params: IPopulationParameters
-  ): number {
-    // TODO memoizing? consider add an id and use it for that purpose
-    let innovationNumbers: Set<number> = new Set([
-      ...genome1.synapses.map((s: Synapse) => s.innovation),
-      ...genome2.synapses.map((s: Synapse) => s.innovation),
-    ]);
-
-    let excess = Math.abs(genome1.synapseMap.size - genome2.synapseMap.size);
-    let disjoint = -excess;
-    const matching: Array<number> = [];
-    const N = Math.max(genome1.synapseMap.size, genome2.synapseMap.size, 1);
-
-    innovationNumbers.forEach((innovation) => {
-      const gene1 = genome1.synapseMap.get(innovation);
-      const gene2 = genome2.synapseMap.get(innovation);
-
-      if (gene1 && gene2) {
-        matching.push(Math.abs(gene1.weight - gene2.weight));
-      } else if (!gene1 || !gene2) {
-        disjoint++;
-      }
-    });
-
-    return (
-      (excess * params.excessCoefficient +
-        disjoint * params.disjointCoefficient) /
-        N +
-      mean(...matching) * params.weightDifferenceCoefficient
-    );
-  }
+  id: string = uuid();
+  network: Network = new Network();
 
   copy(): Genome {
     const genome: Genome = new Genome();
-
-    this.synapseMap.forEach((gene, key) => {
-      genome.synapseMap.set(key, gene.copy());
-    });
-
-    this.neuronMap.forEach((node, key) => {
-      genome.neuronMap.set(key, node.copy());
-    });
-
+    genome.network = this.network.copy();
     return genome;
   }
 
   connectionExists(neuron1: Neuron, neuron2: Neuron): boolean {
-    return this.synapses.some(
+    return this.network.synapses.some(
       (synapse) =>
         synapse.from.id === neuron1.id && synapse.to.id === neuron2.id
     );
@@ -87,20 +27,19 @@ export class Genome {
 
   addConnection(config: IPopulationParameters, connection: Synapse) {
     connection.innovation = config.innovation.next().value;
-    this.synapseMap.set(connection.innovation, connection);
+    this.network.synapseMap.set(connection.innovation, connection);
   }
 
-  // todo: rename to addNeuron
-  addNode(neuron: Neuron) {
-    if (!this.neuronMap.has(neuron.id)) {
-      this.neuronMap.set(neuron.id, neuron);
+  addNeuron(neuron: Neuron) {
+    if (!this.network.neuronMap.has(neuron.id)) {
+      this.network.neuronMap.set(neuron.id, neuron);
     }
   }
 
   mutateAddConnection(params: IPopulationParameters): void {
     let maxTries = params.addConnectionTries;
-    let neurons = this.neurons;
-    const synapses = this.synapses;
+    let neurons = this.network.neurons;
+    const synapses = this.network.synapses;
 
     while (maxTries--) {
       const from = getRandomItem(neurons.filter((n) => !n.isOutput));
@@ -139,9 +78,9 @@ export class Genome {
   }
 
   mutateAddNode(params: IPopulationParameters): void {
-    if (!this.synapseMap.size) return;
+    if (!this.network.synapseMap.size) return;
 
-    const synapse: Synapse = getRandomItem(this.enabledSynapses);
+    const synapse: Synapse = getRandomItem(this.network.enabledSynapses);
     const neuron: Neuron = new Neuron(NeuronType.Hidden);
 
     synapse.disable();
@@ -151,12 +90,12 @@ export class Genome {
       params,
       new Synapse({ from: neuron, to: synapse.to, weight: synapse.weight })
     );
-    this.addNode(neuron);
+    this.addNeuron(neuron);
   }
 
   // Enable first disabled gene
   reEnableGene(): void {
-    for (const synapse of this.synapses) {
+    for (const synapse of this.network.synapses) {
       if (!synapse.enabled) {
         synapse.enabled = true;
         return;
@@ -167,10 +106,10 @@ export class Genome {
   // Mutate a connection by enabling/disabling
   mutateToggleEnable(times: number = 1) {
     while (times--) {
-      const synapse: Synapse = getRandomItem(this.synapses);
+      const synapse: Synapse = getRandomItem(this.network.synapses);
 
       if (synapse.enabled) {
-        const isSafe = this.synapses.some(
+        const isSafe = this.network.synapses.some(
           (s: Synapse) =>
             s.from !== synapse.from ||
             !s.enabled ||
@@ -188,7 +127,7 @@ export class Genome {
     mutationPower,
     genomeWeightPerturbed,
   }: IPopulationParameters) {
-    this.synapses.forEach((synapse: Synapse) => {
+    this.network.synapses.forEach((synapse: Synapse) => {
       const r = random(mutationPower, -mutationPower);
       if (synapse.enabled) {
         random() < genomeWeightPerturbed
@@ -215,5 +154,47 @@ export class Genome {
       }
     }
     return this;
+  }
+
+  // Compute the compatibility distance between two genomes
+  static compatibility(
+    genome1: Genome,
+    genome2: Genome,
+    params: IPopulationParameters
+  ): number {
+    // TODO: Memoize? Consider add an id and use it for that purpose
+    let innovationNumbers: Set<number> = new Set([
+      ...genome1.network.synapses.map((s: Synapse) => s.innovation),
+      ...genome2.network.synapses.map((s: Synapse) => s.innovation),
+    ]);
+
+    let excess = Math.abs(
+      genome1.network.synapseMap.size - genome2.network.synapseMap.size
+    );
+    let disjoint = -excess;
+    const matching: Array<number> = [];
+    const N = Math.max(
+      genome1.network.synapseMap.size,
+      genome2.network.synapseMap.size,
+      1
+    );
+
+    innovationNumbers.forEach((innovation) => {
+      const gene1 = genome1.network.synapseMap.get(innovation);
+      const gene2 = genome2.network.synapseMap.get(innovation);
+
+      if (gene1 && gene2) {
+        matching.push(Math.abs(gene1.weight - gene2.weight));
+      } else if (!gene1 || !gene2) {
+        disjoint++;
+      }
+    });
+
+    return (
+      (excess * params.excessCoefficient +
+        disjoint * params.disjointCoefficient) /
+        N +
+      mean(...matching) * params.weightDifferenceCoefficient
+    );
   }
 }
