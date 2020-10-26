@@ -73,7 +73,7 @@ export class NetworkVisualizer {
   }
 
   drawSynapses() {
-    this.network.synapses.forEach((synapse: Synapse, index: number) => {
+    this.network.synapses.forEach((synapse: Synapse) => {
       const from = this.neuronMap[synapse.from.id];
       const to = this.neuronMap[synapse.to.id];
       this.drawLine({

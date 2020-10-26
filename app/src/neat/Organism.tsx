@@ -1,6 +1,5 @@
 import { Genome } from 'neat/Genome';
 import { Species } from 'neat/Species';
-import { Network } from 'neat/Network';
 import { IPopulationParameters } from 'neat/Population';
 import { ascending, descending } from 'util/sortFunctions';
 import { Synapse } from 'neat/Synapse';
@@ -50,14 +49,14 @@ export class Organism {
     );
 
     let innovationNumbers: Set<number> = new Set([
-      ...hFitParent.synapses.map((s: Synapse) => s.innovation),
-      ...lFitParent.synapses.map((s: Synapse) => s.innovation),
+      ...hFitParent.genome.network.synapses.map((s: Synapse) => s.innovation),
+      ...lFitParent.genome.network.synapses.map((s: Synapse) => s.innovation),
     ]);
 
     // Ensure that all inputs and outputs are added to the organism
-    hFitParent.neurons.forEach((neuron) => {
+    hFitParent.genome.network.neurons.forEach((neuron) => {
       if (neuron.isInput || neuron.isOutput) {
-        child.addNeuron(neuron.copy());
+        child.genome.network.addNeuron(neuron.copy());
       }
     });
 
@@ -74,32 +73,39 @@ export class Organism {
     Array.from(innovationNumbers.values())
       .sort(ascending())
       .forEach((innovationNumber) => {
-        const hConnection = hFitParent.synapseMap.get(innovationNumber)!;
-        const lConnection = lFitParent.synapseMap.get(innovationNumber)!;
+        const hConnection = hFitParent.genome.network.synapseMap.get(
+          innovationNumber
+        )!;
+        const lConnection = lFitParent.genome.network.synapseMap.get(
+          innovationNumber
+        )!;
 
         const connection =
           hConnection && lConnection
             ? // Matching gene
               randomBool() &&
               params.feedForwardOnly &&
-              !isRecurrent(hConnection, child.synapses)
+              !isRecurrent(hConnection, child.genome.network.synapses)
               ? hConnection.copy()
               : lConnection.copy()
             : // excess/disjoint
               (hConnection || lConnection).copy();
 
         // Prevent the creation of RNNs if feed-forward only
-        if (params.feedForwardOnly && isRecurrent(connection, child.synapses)) {
+        if (
+          params.feedForwardOnly &&
+          isRecurrent(connection, child.genome.network.synapses)
+        ) {
           return;
         }
 
-        child.synapseMap.set(innovationNumber, connection);
+        child.genome.network.synapseMap.set(innovationNumber, connection);
 
         connection.from = connection.from.copy();
         connection.to = connection.to.copy();
 
-        child.addNeuron(connection.from);
-        child.addNeuron(connection.to);
+        child.genome.network.addNeuron(connection.from);
+        child.genome.network.addNeuron(connection.to);
       });
 
     return child;
@@ -120,8 +126,11 @@ export class Organism {
           return false;
         }
         const isCompatible =
-          Genome.compatibility(organism, species.getSpecimen(), params) <
-          compatibilityThreshold;
+          Genome.compatibility(
+            organism.genome,
+            species.getSpecimen().genome,
+            params
+          ) < compatibilityThreshold;
         if (isCompatible) {
           species.addOrganism(organism);
         }

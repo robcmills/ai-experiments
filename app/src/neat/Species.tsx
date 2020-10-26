@@ -96,85 +96,85 @@ export class Species {
     }
   }
 
-  /**
-   * Perform mating and mutation to form next generation.
-   * The sorted_species is ordered to have best species in the beginning.
-   * Returns list of child organisms as a result of reproduction of all organisms in this species.
-   */
-  reproduce({
-    generation,
-    params,
-    population,
-    sortedSpecies,
-  }: {
-    generation: number;
-    params: IPopulationParameters;
-    population: Population;
-    sortedSpecies: Species[];
-  }): void {
-    const { organisms, expectedOffspring } = this;
-
-    if (expectedOffspring && !organisms.length) return;
-
-    const [...children]: Organism[] = organisms;
-    const champ: Organism = children[0];
-    let champAdded = false;
-
-    let superChamp: Organism | null = population.getSuperChamp();
-
-    for (let i = 0; i < expectedOffspring; i++) {
-      let child: Organism;
-
-      if (
-        superChamp &&
-        superChamp === champ &&
-        superChamp!.expectedOffspring > 0
-      ) {
-        // If we have a population champion, finish off some special clones
-        let organism = superChamp!.copy(0, generation);
-        if (superChamp!.expectedOffspring === 1) {
-          organism.mutateGenome(params);
-        }
-        superChamp!.expectedOffspring--;
-        child = organism;
-      } else if (!champAdded && expectedOffspring > 5) {
-        // Champion of species with more than 5 networks is copied unchanged
-        child = champ.copy(0, generation);
-        champAdded = true;
-      } else if (random() < params.mutateOnlyProbability) {
-        // Mutate only
-        child = getRandomItem(children).copy(0, generation);
-        child.mutateGenome(params);
-      } else {
-        // Mate
-        const mom = getRandomItem(children);
-        let dad;
-        if (random() > params.interSpeciesMateRate) {
-          dad = getRandomItem(children);
-        } else {
-          // Interspecies mate
-          let tries = 0;
-          let randomSpecies: Species = this;
-          while (randomSpecies === this && tries++ < 5) {
-            const species = Species.pick(sortedSpecies);
-            if (species.organisms.length) {
-              randomSpecies = species;
-            }
-          }
-          dad = randomSpecies.getChampion();
-        }
-
-        child = Organism.crossover(dad, mom, params);
-
-        if (
-          random() < params.mutateOnlyProbability ||
-          Genome.compatibility(mom, dad, params) === 0
-        )
-          child.mutateGenome(params);
-      }
-
-      child.generation = generation;
-      Organism.speciate(params, child, population.species);
-    }
-  }
+  // /**
+  //  * Perform mating and mutation to form next generation.
+  //  * The sorted_species is ordered to have best species in the beginning.
+  //  * Returns list of child organisms as a result of reproduction of all organisms in this species.
+  //  */
+  // reproduce({
+  //   generation,
+  //   params,
+  //   population,
+  //   sortedSpecies,
+  // }: {
+  //   generation: number;
+  //   params: IPopulationParameters;
+  //   population: Population;
+  //   sortedSpecies: Species[];
+  // }): void {
+  //   const { organisms, expectedOffspring } = this;
+  //
+  //   if (expectedOffspring && !organisms.length) return;
+  //
+  //   const [...children]: Organism[] = organisms;
+  //   const champ: Organism = children[0];
+  //   let champAdded = false;
+  //
+  //   let superChamp: Organism | null = population.getSuperChamp();
+  //
+  //   for (let i = 0; i < expectedOffspring; i++) {
+  //     let child: Organism;
+  //
+  //     if (
+  //       superChamp &&
+  //       superChamp === champ &&
+  //       superChamp!.expectedOffspring > 0
+  //     ) {
+  //       // If we have a population champion, finish off some special clones
+  //       let organism = superChamp!.copy(0, generation);
+  //       if (superChamp!.expectedOffspring === 1) {
+  //         organism.mutateGenome(params);
+  //       }
+  //       superChamp!.expectedOffspring--;
+  //       child = organism;
+  //     } else if (!champAdded && expectedOffspring > 5) {
+  //       // Champion of species with more than 5 networks is copied unchanged
+  //       child = champ.copy(0, generation);
+  //       champAdded = true;
+  //     } else if (random() < params.mutateOnlyProbability) {
+  //       // Mutate only
+  //       child = getRandomItem(children).copy(0, generation);
+  //       child.mutateGenome(params);
+  //     } else {
+  //       // Mate
+  //       const mom = getRandomItem(children);
+  //       let dad;
+  //       if (random() > params.interSpeciesMateRate) {
+  //         dad = getRandomItem(children);
+  //       } else {
+  //         // Interspecies mate
+  //         let tries = 0;
+  //         let randomSpecies: Species = this;
+  //         while (randomSpecies === this && tries++ < 5) {
+  //           const species = Species.pick(sortedSpecies);
+  //           if (species.organisms.length) {
+  //             randomSpecies = species;
+  //           }
+  //         }
+  //         dad = randomSpecies.getChampion();
+  //       }
+  //
+  //       child = Organism.crossover(dad, mom, params);
+  //
+  //       if (
+  //         random() < params.mutateOnlyProbability ||
+  //         Genome.compatibility(mom, dad, params) === 0
+  //       )
+  //         child.mutateGenome(params);
+  //     }
+  //
+  //     child.generation = generation;
+  //     Organism.speciate(params, child, population.species);
+  //   }
+  // }
 }

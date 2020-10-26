@@ -68,14 +68,14 @@ export class Population {
     this.parameters = parameters;
   }
 
-  populate(organism: Organism) {
-    for (let i = 0; i < this.parameters.populationSize; i++) {
-      const organismCopy = organism.copy();
-      organismCopy.mutateConnectionsWeights(this.parameters);
-      this.addOrganism(organismCopy);
-    }
-    this.speciate();
-  }
+  // populate(organism: Organism) {
+  //   for (let i = 0; i < this.parameters.populationSize; i++) {
+  //     const organismCopy = organism.copy();
+  //     organismCopy.mutateConnectionsWeights(this.parameters);
+  //     this.addOrganism(organismCopy);
+  //   }
+  //   this.speciate();
+  // }
 
   getSuperChamp(): Organism | null {
     return this.organisms.length
@@ -149,12 +149,12 @@ export class Population {
         (species.averageFitness / overallAverage) *
           this.parameters.populationSize
       );
-      species.reproduce({
-        generation,
-        params: parameters,
-        population: this,
-        sortedSpecies,
-      });
+      // species.reproduce({
+      //   generation,
+      //   params: parameters,
+      //   population: this,
+      //   sortedSpecies,
+      // });
     });
 
     // Remove all the organism from the old generation
@@ -187,15 +187,15 @@ export class Population {
       const { parameters } = this;
       while (!Number.isFinite(maxRuns) || maxRuns--) {
         for (const org of this.organisms) {
-          const net = org.getNetwork();
-          org.fitness = await fitness({
-            network: net,
-            organism: org,
-            population: this!,
-          });
-          if (org.fitness >= parameters.fitnessThreshold) {
-            return resolve(org);
-          }
+          // const net = org.getNetwork();
+          // org.fitness = await fitness({
+          //   network: net,
+          //   organism: org,
+          //   population: this!,
+          // });
+          // if (org.fitness >= parameters.fitnessThreshold) {
+          //   return resolve(org);
+          // }
         }
         this!.epoch();
 

@@ -5,7 +5,7 @@ import { NetworkVisualizer } from 'network/NetworkVisualizer';
 function run(xorNetwork: XorNetwork, visualizer: NetworkVisualizer) {
   console.log('xorNetwork', xorNetwork);
   visualizer.visualize(xorNetwork.network);
-  xorNetwork.run();
+  // xorNetwork.run();
 }
 
 export function Xor() {

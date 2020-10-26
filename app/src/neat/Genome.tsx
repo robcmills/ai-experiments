@@ -81,7 +81,7 @@ export class Genome {
     if (!this.network.synapseMap.size) return;
 
     const synapse: Synapse = getRandomItem(this.network.enabledSynapses);
-    const neuron: Neuron = new Neuron(NeuronType.Hidden);
+    const neuron: Neuron = new Neuron({ type: NeuronType.Hidden });
 
     synapse.disable();
 
