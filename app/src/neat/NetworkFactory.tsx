@@ -8,6 +8,7 @@ interface INetworkFactoryBuildParams {
 }
 
 export class NetworkFactory {
+  // Builds a fully connected network with no hidden layers
   static build(params?: INetworkFactoryBuildParams): Network {
     const { numInputs = 2, numOutputs = 1 } = params || {};
     let neuronId = 0;

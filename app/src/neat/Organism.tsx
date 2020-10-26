@@ -19,19 +19,13 @@ export class Organism {
   originalFitness = 0;
   species?: Species;
 
-  // constructor(genome: Genome) {
-  //   this.genome = genome;
-  // }
+  constructor(organism?: Partial<Organism>) {
+    Object.assign(this, organism);
+  }
 
   copy(): Organism {
-    let clone = new Organism();
-    clone.expectedOffspring = this.expectedOffspring;
-    clone.fitness = this.fitness;
-    clone.generation = this.generation;
+    let clone = new Organism(this);
     clone.genome = this.genome.copy();
-    clone.kill = this.kill;
-    clone.originalFitness = this.originalFitness;
-    clone.species = this.species;
     return clone;
   }
 
