@@ -5,7 +5,6 @@ export class Network {
   inputs: Neuron[] = [];
   neuronMap: Map<string, Neuron> = new Map();
   outputs: Neuron[] = [];
-  state: [any, any] = [{}, {}]; // todo: understand state
   synapseMap: Map<number, Synapse> = new Map();
 
   get neurons(): Neuron[] {

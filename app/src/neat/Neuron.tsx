@@ -11,14 +11,12 @@ export enum NeuronType {
 
 export class Neuron {
   activation = 0;
-  bias = 0;
   id: string = uuid();
   inputs: Synapse[] = [];
   outputs: Synapse[] = [];
   squash = relu;
   state = 0;
   type: NeuronType = NeuronType.Hidden;
-  value = 0;
 
   constructor(neuron?: Partial<Neuron>) {
     Object.assign(this, neuron);

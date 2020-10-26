@@ -1,6 +1,6 @@
 import React from 'react';
 import { Network } from 'neat/Network';
-import { Neuron } from 'neat/Neuron';
+import { Neuron, NeuronType } from 'neat/Neuron';
 import { Synapse } from 'neat/Synapse';
 
 /*
@@ -8,9 +8,9 @@ import { Synapse } from 'neat/Synapse';
   \ /
    3
  */
-const neuron1 = new Neuron({ id: '1' });
-const neuron2 = new Neuron({ id: '2' });
-const neuron3 = new Neuron({ id: '3' });
+const neuron1 = new Neuron({ id: '1', type: NeuronType.Input });
+const neuron2 = new Neuron({ id: '2', type: NeuronType.Input });
+const neuron3 = new Neuron({ id: '3', type: NeuronType.Output });
 const synapse1 = new Synapse({ from: neuron1, to: neuron3 });
 const synapse2 = new Synapse({ from: neuron2, to: neuron3 });
 neuron1.outputs = [synapse1];
@@ -45,6 +45,12 @@ test('Network::copy', () => {
   expect(networkCopy.outputs.length).toEqual(network.outputs.length);
 });
 
-// test('Network::activate', () => {
-//   Todo
-// });
+test('Network::activate', () => {
+  expect(network.activate([0, 0])).toEqual([0]);
+  expect(network.activate([1, 1])).toEqual([0]);
+
+  network.synapses.forEach((synapse) => (synapse.weight = 1));
+
+  expect(network.activate([1, 1])).toEqual([1]);
+  expect(network.activate([2, 3])).toEqual([4]);
+});
