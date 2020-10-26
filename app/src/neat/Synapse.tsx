@@ -5,7 +5,7 @@ export class Synapse {
   from: Neuron;
   innovation = 0;
   to: Neuron;
-  weight = 0;
+  weight = 1;
 
   constructor(synapse: Partial<Synapse>) {
     Object.assign(this, synapse);

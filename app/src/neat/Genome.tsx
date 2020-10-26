@@ -4,12 +4,10 @@ import { Synapse } from 'neat/Synapse';
 import { getRandomItem } from 'util/getRandomItem';
 import { isRecurrent } from 'util/isRecurrent';
 import { random } from 'util/random';
-import { uuid } from 'util/uuid';
 import { mean } from 'util/mean';
 import { Network } from 'neat/Network';
 
 export class Genome {
-  id: string = uuid();
   network: Network = new Network();
 
   copy(): Genome {
@@ -25,15 +23,13 @@ export class Genome {
     );
   }
 
-  addConnection(config: IPopulationParameters, connection: Synapse) {
-    connection.innovation = config.innovation.next().value;
-    this.network.synapseMap.set(connection.innovation, connection);
+  addSynapse(config: IPopulationParameters, synapse: Synapse) {
+    synapse.innovation = config.innovation.next().value;
+    this.network.synapseMap.set(synapse.innovation, synapse);
   }
 
   addNeuron(neuron: Neuron) {
-    if (!this.network.neuronMap.has(neuron.id)) {
-      this.network.neuronMap.set(neuron.id, neuron);
-    }
+    this.network.neuronMap.set(neuron.id, neuron);
   }
 
   mutateAddConnection(params: IPopulationParameters): void {
@@ -43,20 +39,7 @@ export class Genome {
 
     while (maxTries--) {
       const from = getRandomItem(neurons.filter((n) => !n.isOutput));
-
-      const to = getRandomItem(
-        neurons.filter(
-          (node) =>
-            // don't allow sensors to get input
-            !node.isInput &&
-            // exclude self loops
-            node !== from &&
-            // consider connections between output nodes recurrent
-            (from.type === NeuronType.Output
-              ? node.type !== NeuronType.Output
-              : true)
-        )
-      );
+      const to = getRandomItem(neurons.filter((n) => !n.isInput && n !== from));
 
       const synapse = new Synapse({
         from,
@@ -65,28 +48,28 @@ export class Genome {
       });
 
       const isValid =
-        // connection already exists
         !this.connectionExists(from, to) &&
-        // is a RNN
         (!params.feedForwardOnly || !isRecurrent(synapse, synapses));
 
       if (isValid) {
-        this.addConnection(params, synapse);
+        this.addSynapse(params, synapse);
         return;
       }
     }
   }
 
   mutateAddNode(params: IPopulationParameters): void {
-    if (!this.network.synapseMap.size) return;
-
+    if (!this.network.synapseMap.size) {
+      return;
+    }
     const synapse: Synapse = getRandomItem(this.network.enabledSynapses);
-    const neuron: Neuron = new Neuron({ type: NeuronType.Hidden });
-
     synapse.disable();
-
-    this.addConnection(params, new Synapse({ from: synapse.from, to: neuron }));
-    this.addConnection(
+    const neuron: Neuron = new Neuron({ type: NeuronType.Hidden });
+    this.addSynapse(
+      params,
+      new Synapse({ from: synapse.from, to: neuron, weight: 1 })
+    );
+    this.addSynapse(
       params,
       new Synapse({ from: neuron, to: synapse.to, weight: synapse.weight })
     );
