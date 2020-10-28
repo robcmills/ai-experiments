@@ -44,6 +44,7 @@ export class XorNetwork {
     const genome = new Genome();
     genome.network = this.network;
     genome.mutateAddNode(params);
+    genome.mutateAddConnection(params);
   }
 
   computeFitness() {

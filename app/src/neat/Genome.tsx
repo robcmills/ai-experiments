@@ -48,6 +48,8 @@ export class Genome {
       });
 
       const isValid =
+        !!from &&
+        !!to &&
         !this.connectionExists(from, to) &&
         (!params.feedForwardOnly || !isRecurrent(synapse, synapses));
 

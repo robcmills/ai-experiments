@@ -2,21 +2,7 @@
 import { Synapse } from 'neat/Synapse';
 
 export function isRecurrent(synapse: Synapse, synapses: Synapse[]): boolean {
-  const startNode = synapse.from;
-  const stack = [synapse];
-
-  // todo: optimize
-  while (stack.length) {
-    synapse = stack.shift()!;
-
-    if (synapse.to.id === startNode.id) {
-      return true;
-    }
-
-    stack.push(
-      ...synapses.filter((s) => synapse && s.from.id === synapse?.to?.id)
-    );
-  }
-
-  return false;
+  return [synapse, ...synapses.filter((s) => s.from.id === synapse.to.id)].some(
+    (s) => s.to.id === synapse.from.id
+  );
 }
