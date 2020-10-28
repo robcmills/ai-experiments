@@ -22,6 +22,10 @@ export class Neuron {
     Object.assign(this, neuron);
   }
 
+  get enabledOutputs() {
+    return this.outputs.filter((o) => o.enabled);
+  }
+
   get isInput() {
     return this.type === NeuronType.Input || this.type === NeuronType.Bias;
   }

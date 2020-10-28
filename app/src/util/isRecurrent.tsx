@@ -13,7 +13,9 @@ export function isRecurrent(synapse: Synapse, synapses: Synapse[]): boolean {
       return true;
     }
 
-    stack.push(...synapses.filter((gene) => gene.from.id === synapse.to.id));
+    stack.push(
+      ...synapses.filter((s) => synapse && s.from.id === synapse?.to?.id)
+    );
   }
 
   return false;

@@ -3,6 +3,7 @@ import { Synapse } from 'neat/Synapse';
 import { Network } from 'neat/Network';
 
 interface INetworkFactoryBuildParams {
+  innovation: IterableIterator<number>;
   numInputs?: number;
   numOutputs?: number;
 }
@@ -10,7 +11,7 @@ interface INetworkFactoryBuildParams {
 export class NetworkFactory {
   // Builds a fully connected network with no hidden layers
   static build(params?: INetworkFactoryBuildParams): Network {
-    const { numInputs = 2, numOutputs = 1 } = params || {};
+    const { innovation, numInputs = 2, numOutputs = 1 } = params || {};
     let neuronId = 0;
     const inputs: Neuron[] = [];
     for (let i = 0; i < numInputs; i++) {
@@ -24,11 +25,10 @@ export class NetworkFactory {
     }
 
     const synapses: Synapse[] = [];
-    let synapseInnovation = 0;
     inputs.forEach((input) => {
       outputs.forEach((output) => {
         const synapse = new Synapse({
-          innovation: synapseInnovation++,
+          innovation: innovation.next().value,
           from: input,
           to: output,
         });

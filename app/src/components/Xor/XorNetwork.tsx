@@ -8,6 +8,11 @@ import { Network } from 'neat/Network';
 // import { Synapse } from 'neat/Synapse';
 // import { Organism } from 'neat/Organism';
 import { NetworkFactory } from 'neat/NetworkFactory';
+import { Genome } from 'neat/Genome';
+import {
+  defaultPopulationParameters,
+  IPopulationParameters,
+} from 'neat/Population';
 
 const xorTrainingData = [
   [[0, 0], [0]],
@@ -16,20 +21,34 @@ const xorTrainingData = [
   [[1, 1], [0]],
 ];
 
-// const params: IPopulationParameters = {
-//   ...defaultPopulationParameters,
-//   adjustCompatibilityThreshold: true,
-//   compatibilityModifierTarget: 30,
-//   disjointCoefficient: 0.5,
-//   excessCoefficient: 2,
-//   feedForwardOnly: true,
-//   fitnessThreshold: 15.9,
-//   populationSize: 10,
-//   weightDifferenceCoefficient: 1,
-// };
+const params: IPopulationParameters = {
+  ...defaultPopulationParameters,
+  adjustCompatibilityThreshold: true,
+  compatibilityModifierTarget: 30,
+  disjointCoefficient: 0.5,
+  excessCoefficient: 2,
+  feedForwardOnly: true,
+  fitnessThreshold: 15.9,
+  populationSize: 10,
+  weightDifferenceCoefficient: 1,
+};
 
 export class XorNetwork {
-  network: Network = NetworkFactory.build();
+  network: Network = NetworkFactory.build({
+    innovation: params.innovation,
+    numInputs: 5,
+    numOutputs: 2,
+  });
+
+  constructor() {
+    const genome = new Genome();
+    genome.network = this.network;
+    genome.mutateAddNode(params);
+    genome.mutateAddNode(params);
+    genome.mutateAddNode(params);
+    genome.mutateAddNode(params);
+    console.log('genome', genome);
+  }
 
   computeFitness() {
     let fitness = 2;

@@ -63,16 +63,25 @@ export class Genome {
       return;
     }
     const synapse: Synapse = getRandomItem(this.network.enabledSynapses);
+    console.log('mutateAddNode', synapse.from, synapse.to);
     synapse.disable();
     const neuron: Neuron = new Neuron({ type: NeuronType.Hidden });
-    this.addSynapse(
-      params,
-      new Synapse({ from: synapse.from, to: neuron, weight: 1 })
-    );
-    this.addSynapse(
-      params,
-      new Synapse({ from: neuron, to: synapse.to, weight: synapse.weight })
-    );
+    const synapseBefore = new Synapse({
+      from: synapse.from,
+      to: neuron,
+      weight: 1,
+    });
+    const synapseAfter = new Synapse({
+      from: neuron,
+      to: synapse.to,
+      weight: synapse.weight,
+    });
+    synapse.from.outputs.push(synapseBefore);
+    synapse.to.inputs.push(synapseAfter);
+    neuron.inputs = [synapseBefore];
+    neuron.outputs = [synapseAfter];
+    this.addSynapse(params, synapseBefore);
+    this.addSynapse(params, synapseAfter);
     this.addNeuron(neuron);
   }
 
