@@ -36,18 +36,14 @@ const params: IPopulationParameters = {
 export class XorNetwork {
   network: Network = NetworkFactory.build({
     innovation: params.innovation,
-    numInputs: 5,
-    numOutputs: 2,
+    numInputs: 2,
+    numOutputs: 1,
   });
 
   constructor() {
     const genome = new Genome();
     genome.network = this.network;
     genome.mutateAddNode(params);
-    genome.mutateAddNode(params);
-    genome.mutateAddNode(params);
-    genome.mutateAddNode(params);
-    console.log('genome', genome);
   }
 
   computeFitness() {

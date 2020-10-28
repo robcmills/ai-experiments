@@ -44,6 +44,19 @@ export class NetworkVisualizer {
 
   calculateLayout() {
     this.calculateLayerLayout(this.network.inputs, 0);
+
+    // Render all output Neurons always on the right
+    const layerKeys = Array.from(this.hiddenLayersIndices.keys());
+    const lastLayer = layerKeys[layerKeys.length - 1];
+    let index = 0;
+    this.network.outputs.forEach((neuron) => {
+      this.neuronLayoutMap.set(neuron.id, {
+        neuron,
+        x: OFFSET_X + lastLayer * LAYER_GAP_WIDTH,
+        y: OFFSET_Y + index * NEURON_RADIUS * 3,
+      });
+      index++;
+    });
   }
 
   calculateLayerLayout(neuronLayer: Neuron[], layer: number) {
@@ -53,14 +66,15 @@ export class NetworkVisualizer {
       this.hiddenLayersIndices.set(layer, 0);
       index = 0;
     }
-    // const perturbation = Math.random() * 10;
-    const perturbation = 0;
     let nextLayer: Map<string, Neuron> = new Map();
     neuronLayer.forEach((neuron) => {
+      if (neuron.isOutput) {
+        return;
+      }
       this.neuronLayoutMap.set(neuron.id, {
         neuron,
         x: OFFSET_X + layer * LAYER_GAP_WIDTH,
-        y: OFFSET_Y + index * NEURON_RADIUS * 3 + perturbation,
+        y: OFFSET_Y + index * NEURON_RADIUS * 3,
       });
       this.hiddenLayersIndices.set(layer, index++);
       neuron.enabledOutputs
@@ -136,7 +150,6 @@ export class NetworkVisualizer {
   }
 
   visualize(network: Network) {
-    console.log('visualize', network);
     this.network = network;
     this.calculateLayout();
     this.drawSynapses();
