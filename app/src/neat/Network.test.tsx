@@ -19,20 +19,18 @@ test('Network::copy', () => {
   const networkCopy = network.copy();
   networkCopy.synapses.forEach((synapseCopy) => {
     // Ensure copied synapses are not referentially equal to original network.
-    expect(synapseCopy).not.toBe(
-      network.synapseMap.get(synapseCopy.innovation)
-    );
+    expect(synapseCopy).not.toBe(network.synapseMap.get(synapseCopy.index));
   });
   networkCopy.neurons.forEach((neuronCopy) => {
     // Ensure copied neurons are not referentially equal to original network.
-    expect(neuronCopy).not.toBe(network.neuronMap.get(neuronCopy.id));
+    expect(neuronCopy).not.toBe(network.neuronMap.get(neuronCopy.index));
     neuronCopy.inputs.forEach((input: Synapse) => {
       // Ensure copied neurons' inputs are referentially equal to copied network.
-      expect(input).toBe(networkCopy.synapseMap.get(input.innovation));
+      expect(input).toBe(networkCopy.synapseMap.get(input.index));
     });
     neuronCopy.outputs.forEach((output: Synapse) => {
       // Ensure copied neurons' outputs are referentially equal to copied network.
-      expect(output).toBe(networkCopy.synapseMap.get(output.innovation));
+      expect(output).toBe(networkCopy.synapseMap.get(output.index));
     });
   });
   // Ensure inputs and outputs have been populated.

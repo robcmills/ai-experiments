@@ -25,7 +25,7 @@ export class NetworkFactory {
     inputs.forEach((input) => {
       outputs.forEach((output) => {
         const synapse = new Synapse({
-          innovation: innovation.next().value,
+          index: innovation.next().value,
           from: input,
           to: output,
         });

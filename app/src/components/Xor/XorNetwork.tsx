@@ -43,7 +43,7 @@ export class XorNetwork {
   constructor() {
     const genome = new Genome();
     genome.network = this.network;
-    genome.mutateAddNode(params);
+    genome.mutateAddNode();
     genome.mutateAddSynapse(params);
   }
 

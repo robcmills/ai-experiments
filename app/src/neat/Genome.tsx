@@ -6,7 +6,6 @@ import { isRecurrent } from 'util/isRecurrent';
 import { random } from 'util/random';
 import { mean } from 'util/mean';
 import { Network } from 'neat/Network';
-import { Innovation } from 'neat/innovation';
 
 export class Genome {
   network: Network = new Network();
@@ -19,11 +18,6 @@ export class Genome {
     const genome: Genome = new Genome();
     genome.network = this.network.copy();
     return genome;
-  }
-
-  addSynapse(innovation: Innovation, synapse: Synapse) {
-    synapse.innovation = innovation.next().value;
-    this.network.synapseMap.set(synapse.innovation, synapse);
   }
 
   connectionExists(neuron1: Neuron, neuron2: Neuron): boolean {
@@ -56,13 +50,13 @@ export class Genome {
         (!params.feedForwardOnly || !isRecurrent(synapse, synapses));
 
       if (isValid) {
-        this.addSynapse(params.innovation, synapse);
+        this.network.addSynapse(synapse);
         return;
       }
     }
   }
 
-  mutateAddNode(params: IPopulationParameters): void {
+  mutateAddNode(): void {
     if (!this.network.synapseMap.size) {
       return;
     }
@@ -83,8 +77,8 @@ export class Genome {
     synapse.to.inputs.push(synapseAfter);
     neuron.inputs = [synapseBefore];
     neuron.outputs = [synapseAfter];
-    this.addSynapse(params.innovation, synapseBefore);
-    this.addSynapse(params.innovation, synapseAfter);
+    this.network.addSynapse(synapseBefore);
+    this.network.addSynapse(synapseAfter);
     this.network.addNeuron(neuron);
   }
 
@@ -106,9 +100,7 @@ export class Genome {
       if (synapse.enabled) {
         const isSafe = this.network.synapses.some(
           (s: Synapse) =>
-            s.from !== synapse.from ||
-            !s.enabled ||
-            s.innovation === synapse.innovation
+            s.from !== synapse.from || !s.enabled || s.index === synapse.index
         );
         synapse.enabled = !isSafe;
       } else {
@@ -134,7 +126,7 @@ export class Genome {
 
   mutateGenome(params: IPopulationParameters) {
     if (random() < params.mutateAddNodeProbability) {
-      this.mutateAddNode(params);
+      this.mutateAddNode();
     } else if (random() < params.mutateAddConnectionProbability) {
       this.mutateAddSynapse(params);
     } else {
@@ -159,8 +151,8 @@ export class Genome {
   ): number {
     // TODO: Memoize? Consider add an id and use it for that purpose
     let innovationNumbers: Set<number> = new Set([
-      ...genome1.network.synapses.map((s: Synapse) => s.innovation),
-      ...genome2.network.synapses.map((s: Synapse) => s.innovation),
+      ...genome1.network.synapses.map((s: Synapse) => s.index),
+      ...genome2.network.synapses.map((s: Synapse) => s.index),
     ]);
 
     let excess = Math.abs(

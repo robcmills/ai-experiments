@@ -43,8 +43,8 @@ export class Organism {
     );
 
     let innovationNumbers: Set<number> = new Set([
-      ...hFitParent.genome.network.synapses.map((s: Synapse) => s.innovation),
-      ...lFitParent.genome.network.synapses.map((s: Synapse) => s.innovation),
+      ...hFitParent.genome.network.synapses.map((s: Synapse) => s.index),
+      ...lFitParent.genome.network.synapses.map((s: Synapse) => s.index),
     ]);
 
     // Ensure that all inputs and outputs are added to the organism

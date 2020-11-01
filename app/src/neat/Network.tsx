@@ -4,7 +4,7 @@ import { Neuron, NeuronType } from 'neat/Neuron';
 export class Network {
   inputs: Neuron[] = [];
   neuronIndex: number = 0;
-  neuronMap: Map<string, Neuron> = new Map();
+  neuronMap: Map<number, Neuron> = new Map();
   outputs: Neuron[] = [];
   synapseIndex: number = 0;
   synapseMap: Map<number, Synapse> = new Map();
@@ -34,18 +34,8 @@ export class Network {
   }
 
   addNeuron(neuron: Neuron) {
-    if (!neuron.index) {
-      throw new Error('Failed to addNeuron with no index');
-    }
-    if (this.neuronMap.has('' + neuron.index)) {
-      throw new Error(
-        'Failed to addNeuron with duplicate index: ' + neuron.index
-      );
-    }
-    if (neuron.index < 0) {
-      neuron.index = this.neuronIndex++;
-    }
-    this.neuronMap.set('' + neuron.index, neuron);
+    neuron.index = this.neuronIndex++;
+    this.neuronMap.set(neuron.index, neuron);
     switch (neuron.type) {
       case NeuronType.Bias:
       case NeuronType.Input:
@@ -64,7 +54,8 @@ export class Network {
   }
 
   addSynapse(synapse: Synapse) {
-    this.synapseMap.set(synapse.innovation, synapse);
+    synapse.index = this.synapseIndex++;
+    this.synapseMap.set(synapse.index, synapse);
   }
 
   addSynapses(synapses: Synapse[]) {
@@ -80,17 +71,17 @@ export class Network {
     });
     this.synapses.forEach((synapse) => {
       const synapseCopy = synapse.copy();
-      synapseCopy.from = this.neuronMap.get('' + synapseCopy.from.index);
-      synapseCopy.to = this.neuronMap.get('' + synapseCopy.to.index);
+      synapseCopy.from = this.neuronMap.get(synapseCopy.from.index);
+      synapseCopy.to = this.neuronMap.get(synapseCopy.to.index);
       networkCopy.addSynapse(synapseCopy);
     });
     networkCopy.neurons.forEach((neuron) => {
       neuron.inputs = neuron.inputs.reduce((acc, synapse) => {
-        acc.push(networkCopy.synapseMap.get(synapse.innovation));
+        acc.push(networkCopy.synapseMap.get(synapse.index));
         return acc;
       }, []);
       neuron.outputs = neuron.outputs.reduce((acc, synapse) => {
-        acc.push(networkCopy.synapseMap.get(synapse.innovation));
+        acc.push(networkCopy.synapseMap.get(synapse.index));
         return acc;
       }, []);
     });
