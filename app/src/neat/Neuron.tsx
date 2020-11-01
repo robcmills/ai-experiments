@@ -1,4 +1,3 @@
-import { uuid } from 'util/uuid';
 import { Synapse } from 'neat/Synapse';
 import { relu } from 'network/activations';
 
@@ -11,7 +10,7 @@ export enum NeuronType {
 
 export class Neuron {
   activation = 0;
-  id: string = uuid();
+  index: number = -1;
   inputs: Synapse[] = [];
   outputs: Synapse[] = [];
   squash = relu;

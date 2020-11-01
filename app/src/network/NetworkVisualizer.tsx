@@ -50,7 +50,7 @@ export class NetworkVisualizer {
     const lastLayer = layerKeys[layerKeys.length - 1];
     let index = 0;
     this.network.outputs.forEach((neuron) => {
-      this.neuronLayoutMap.set(neuron.id, {
+      this.neuronLayoutMap.set('' + neuron.index, {
         neuron,
         x: OFFSET_X + lastLayer * LAYER_GAP_WIDTH,
         y: OFFSET_Y + index * NEURON_RADIUS * 3,
@@ -71,7 +71,7 @@ export class NetworkVisualizer {
       if (neuron.isOutput) {
         return;
       }
-      this.neuronLayoutMap.set(neuron.id, {
+      this.neuronLayoutMap.set('' + neuron.index, {
         neuron,
         x: OFFSET_X + layer * LAYER_GAP_WIDTH,
         y: OFFSET_Y + index * NEURON_RADIUS * 3,
@@ -80,7 +80,7 @@ export class NetworkVisualizer {
       neuron.enabledOutputs
         .map((s) => s.to)
         .forEach((neuron) => {
-          nextLayer.set(neuron.id, neuron);
+          nextLayer.set('' + neuron.index, neuron);
         });
     });
     if (nextLayer.size) {
@@ -100,8 +100,8 @@ export class NetworkVisualizer {
 
   drawSynapses() {
     this.network.enabledSynapses.forEach((synapse: Synapse) => {
-      const from = this.neuronLayoutMap.get(synapse.from.id);
-      const to = this.neuronLayoutMap.get(synapse.to.id);
+      const from = this.neuronLayoutMap.get('' + synapse.from.index);
+      const to = this.neuronLayoutMap.get('' + synapse.to.index);
       this.drawLine({
         from: { x: from.x, y: from.y },
         to: { x: to.x, y: to.y },
@@ -133,7 +133,7 @@ export class NetworkVisualizer {
     this.context.fillStyle = 'black';
     this.context.font = `${FONT_SIZE} ${FONT}`;
     this.context.fillText(
-      `i:${neuron.id.slice(0, 2)}`,
+      `i:${neuron.index}`,
       x + xOffset,
       y - NEURON_RADIUS - 2 + FONT_LINE_HEIGHT
     );

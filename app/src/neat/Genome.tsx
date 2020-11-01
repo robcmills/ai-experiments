@@ -26,18 +26,15 @@ export class Genome {
     this.network.synapseMap.set(synapse.innovation, synapse);
   }
 
-  addNeuron(neuron: Neuron) {
-    this.network.neuronMap.set(neuron.id, neuron);
-  }
-
   connectionExists(neuron1: Neuron, neuron2: Neuron): boolean {
     return this.network.synapses.some(
       (synapse) =>
-        synapse.from.id === neuron1.id && synapse.to.id === neuron2.id
+        synapse.from.index === neuron1.index &&
+        synapse.to.index === neuron2.index
     );
   }
 
-  mutateAddConnection(params: IPopulationParameters): void {
+  mutateAddSynapse(params: IPopulationParameters): void {
     let maxTries = params.addConnectionTries;
     let neurons = this.network.neurons;
     const synapses = this.network.synapses;
@@ -88,7 +85,7 @@ export class Genome {
     neuron.outputs = [synapseAfter];
     this.addSynapse(params.innovation, synapseBefore);
     this.addSynapse(params.innovation, synapseAfter);
-    this.addNeuron(neuron);
+    this.network.addNeuron(neuron);
   }
 
   // Enable first disabled gene
@@ -139,7 +136,7 @@ export class Genome {
     if (random() < params.mutateAddNodeProbability) {
       this.mutateAddNode(params);
     } else if (random() < params.mutateAddConnectionProbability) {
-      this.mutateAddConnection(params);
+      this.mutateAddSynapse(params);
     } else {
       if (random() < params.mutateConnectionWeightsProbability) {
         this.mutateConnectionsWeights(params);

@@ -3,8 +3,10 @@ import { Neuron, NeuronType } from 'neat/Neuron';
 
 export class Network {
   inputs: Neuron[] = [];
+  neuronIndex: number = 0;
   neuronMap: Map<string, Neuron> = new Map();
   outputs: Neuron[] = [];
+  synapseIndex: number = 0;
   synapseMap: Map<number, Synapse> = new Map();
 
   get neurons(): Neuron[] {
@@ -32,7 +34,18 @@ export class Network {
   }
 
   addNeuron(neuron: Neuron) {
-    this.neuronMap.set(neuron.id, neuron);
+    if (!neuron.index) {
+      throw new Error('Failed to addNeuron with no index');
+    }
+    if (this.neuronMap.has('' + neuron.index)) {
+      throw new Error(
+        'Failed to addNeuron with duplicate index: ' + neuron.index
+      );
+    }
+    if (neuron.index < 0) {
+      neuron.index = this.neuronIndex++;
+    }
+    this.neuronMap.set('' + neuron.index, neuron);
     switch (neuron.type) {
       case NeuronType.Bias:
       case NeuronType.Input:
@@ -67,8 +80,8 @@ export class Network {
     });
     this.synapses.forEach((synapse) => {
       const synapseCopy = synapse.copy();
-      synapseCopy.from = this.neuronMap.get(synapseCopy.from.id);
-      synapseCopy.to = this.neuronMap.get(synapseCopy.to.id);
+      synapseCopy.from = this.neuronMap.get('' + synapseCopy.from.index);
+      synapseCopy.to = this.neuronMap.get('' + synapseCopy.to.index);
       networkCopy.addSynapse(synapseCopy);
     });
     networkCopy.neurons.forEach((neuron) => {

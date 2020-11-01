@@ -25,11 +25,11 @@ test('Genome::mutateAddConnection', () => {
   });
   const genome: Genome = new Genome({ network });
   expect(genome.network.synapseMap.size).toEqual(2);
-  genome.mutateAddConnection(params);
+  genome.mutateAddSynapse(params);
   // Default network is already fully connected
   expect(genome.network.synapseMap.size).toEqual(2);
   genome.mutateAddNode(params);
   genome.mutateAddNode(params);
-  genome.mutateAddConnection(params);
+  genome.mutateAddSynapse(params);
   expect(genome.network.synapseMap.size).toEqual(7);
 });
