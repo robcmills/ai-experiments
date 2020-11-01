@@ -6,9 +6,14 @@ import { isRecurrent } from 'util/isRecurrent';
 import { random } from 'util/random';
 import { mean } from 'util/mean';
 import { Network } from 'neat/Network';
+import { Innovation } from 'neat/innovation';
 
 export class Genome {
   network: Network = new Network();
+
+  constructor(genome?: Partial<Genome>) {
+    Object.assign(this, genome);
+  }
 
   copy(): Genome {
     const genome: Genome = new Genome();
@@ -16,20 +21,20 @@ export class Genome {
     return genome;
   }
 
-  connectionExists(neuron1: Neuron, neuron2: Neuron): boolean {
-    return this.network.synapses.some(
-      (synapse) =>
-        synapse.from.id === neuron1.id && synapse.to.id === neuron2.id
-    );
-  }
-
-  addSynapse(config: IPopulationParameters, synapse: Synapse) {
-    synapse.innovation = config.innovation.next().value;
+  addSynapse(innovation: Innovation, synapse: Synapse) {
+    synapse.innovation = innovation.next().value;
     this.network.synapseMap.set(synapse.innovation, synapse);
   }
 
   addNeuron(neuron: Neuron) {
     this.network.neuronMap.set(neuron.id, neuron);
+  }
+
+  connectionExists(neuron1: Neuron, neuron2: Neuron): boolean {
+    return this.network.synapses.some(
+      (synapse) =>
+        synapse.from.id === neuron1.id && synapse.to.id === neuron2.id
+    );
   }
 
   mutateAddConnection(params: IPopulationParameters): void {
@@ -54,7 +59,7 @@ export class Genome {
         (!params.feedForwardOnly || !isRecurrent(synapse, synapses));
 
       if (isValid) {
-        this.addSynapse(params, synapse);
+        this.addSynapse(params.innovation, synapse);
         return;
       }
     }
@@ -81,8 +86,8 @@ export class Genome {
     synapse.to.inputs.push(synapseAfter);
     neuron.inputs = [synapseBefore];
     neuron.outputs = [synapseAfter];
-    this.addSynapse(params, synapseBefore);
-    this.addSynapse(params, synapseAfter);
+    this.addSynapse(params.innovation, synapseBefore);
+    this.addSynapse(params.innovation, synapseAfter);
     this.addNeuron(neuron);
   }
 
