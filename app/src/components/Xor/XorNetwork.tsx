@@ -35,7 +35,6 @@ const params: IPopulationParameters = {
 
 export class XorNetwork {
   network: Network = NetworkFactory.build({
-    innovation: params.innovation,
     numInputs: 3,
     numOutputs: 1,
   });

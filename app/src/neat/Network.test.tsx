@@ -2,7 +2,6 @@ import React from 'react';
 import { Network } from 'neat/Network';
 import { Synapse } from 'neat/Synapse';
 import { NetworkFactory } from 'neat/NetworkFactory';
-import { innovation } from 'neat/innovation';
 
 /*
  1   2
@@ -10,7 +9,6 @@ import { innovation } from 'neat/innovation';
    3
  */
 const network: Network = NetworkFactory.build({
-  innovation: innovation(),
   numInputs: 2,
   numOutputs: 1,
 });

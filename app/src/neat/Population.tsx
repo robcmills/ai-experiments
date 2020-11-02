@@ -2,7 +2,6 @@ import { Organism } from 'neat/Organism';
 import { Species } from 'neat/Species';
 import { descending } from 'util/sortFunctions';
 import { Fitness } from 'neat/Fitness';
-import { Innovation, innovation } from 'neat/innovation';
 
 export interface IPopulationParameters {
   addConnectionTries: number; // Number of attempts to find an open link
@@ -17,7 +16,6 @@ export interface IPopulationParameters {
   feedForwardOnly: boolean; // If true, only feed-forward networks are allowed
   fitnessThreshold: number; // Threshold to consider the network valid
   genomeWeightPerturbed: number; // Chance for genome weight to be uniformly perturbed
-  innovation: Innovation; // Generator of innovation numbers
   interSpeciesMateRate: number; // Probability of a mate being outside species
   mutateAddConnectionProbability: number; // Probability of an "add connection" mutation
   mutateAddNodeProbability: number; // Probability of an "add node" mutation
@@ -44,7 +42,6 @@ export const defaultPopulationParameters: IPopulationParameters = {
   feedForwardOnly: true,
   fitnessThreshold: 0.9,
   genomeWeightPerturbed: 0.9,
-  innovation: innovation(),
   interSpeciesMateRate: 0.001,
   mutateAddConnectionProbability: 0.05,
   mutateAddNodeProbability: 0.03,
