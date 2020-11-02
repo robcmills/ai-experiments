@@ -6,6 +6,7 @@ import { isRecurrent } from 'util/isRecurrent';
 import { random } from 'util/random';
 import { mean } from 'util/mean';
 import { Network } from 'neat/Network';
+import { isConnected } from 'util/isConnected';
 
 export class Genome {
   network: Network = new Network();
@@ -18,14 +19,6 @@ export class Genome {
     const genome: Genome = new Genome();
     genome.network = this.network.copy();
     return genome;
-  }
-
-  connectionExists(neuron1: Neuron, neuron2: Neuron): boolean {
-    return this.network.synapses.some(
-      (synapse) =>
-        synapse.from.index === neuron1.index &&
-        synapse.to.index === neuron2.index
-    );
   }
 
   mutateAddSynapse(params: IPopulationParameters): void {
@@ -46,7 +39,7 @@ export class Genome {
       const isValid =
         !!from &&
         !!to &&
-        !this.connectionExists(from, to) &&
+        !isConnected(from, to) &&
         (!params.feedForwardOnly || !isRecurrent(synapse, synapses));
 
       if (isValid) {
