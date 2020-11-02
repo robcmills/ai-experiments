@@ -1,13 +1,18 @@
 import { Network } from 'neat/Network';
 import { Neuron, NeuronType } from 'neat/Neuron';
 import { Synapse } from 'neat/Synapse';
+import { IPopulationParameters } from 'neat/Population';
 
 const CIRCLE_END_ANGLE = 2 * Math.PI;
 const FONT = 'monospace';
 const FONT_LINE_HEIGHT = 8;
 const FONT_SIZE = `${FONT_LINE_HEIGHT}px`;
 const SYNAPSE_LINE_WIDTH = 1;
+const SYNAPSE_LINE_WIDTH_MIN = 0.5;
+const SYNAPSE_LINE_WIDTH_MAX = 5;
 const SYNAPSE_STROKE_STYLE = 'lightgray';
+const SYNAPSE_STROKE_STYLE_POSITIVE = 'mediumseagreen';
+const SYNAPSE_STROKE_STYLE_NEGATIVE = 'indianred';
 const LAYER_GAP_WIDTH = 50;
 const NEURON_LINE_WIDTH = 2;
 const NEURON_FILL_STYLE = 'lightblue';
@@ -32,7 +37,8 @@ export class NetworkVisualizer {
   context: CanvasRenderingContext2D = this.canvas.getContext('2d');
   network: Network;
   hiddenLayersIndices: Map<number, number> = new Map();
-  neuronLayoutMap: Map<string, LayoutNeuron> = new Map();
+  neuronLayoutMap: Map<number, LayoutNeuron> = new Map();
+  params: IPopulationParameters;
 
   constructor(parent: HTMLElement) {
     parent.appendChild(this.canvas);
@@ -50,7 +56,7 @@ export class NetworkVisualizer {
     const lastLayer = layerKeys[layerKeys.length - 1];
     let index = 0;
     this.network.outputs.forEach((neuron) => {
-      this.neuronLayoutMap.set('' + neuron.index, {
+      this.neuronLayoutMap.set(neuron.index, {
         neuron,
         x: OFFSET_X + lastLayer * LAYER_GAP_WIDTH,
         y: OFFSET_Y + index * NEURON_RADIUS * 3,
@@ -71,10 +77,10 @@ export class NetworkVisualizer {
       if (neuron.isOutput) {
         return;
       }
-      this.neuronLayoutMap.set('' + neuron.index, {
+      this.neuronLayoutMap.set(neuron.index, {
         neuron,
         x: OFFSET_X + layer * LAYER_GAP_WIDTH,
-        y: OFFSET_Y + index * NEURON_RADIUS * 3,
+        y: OFFSET_Y + index * NEURON_RADIUS * 3 + layer * NEURON_RADIUS,
       });
       this.hiddenLayersIndices.set(layer, index++);
       neuron.enabledOutputs
@@ -88,22 +94,47 @@ export class NetworkVisualizer {
     }
   }
 
-  drawLine({ from, to }: { from: Point2D; to: Point2D }) {
+  drawLine({
+    from,
+    lineWidth,
+    strokeStyle,
+    to,
+  }: {
+    from: Point2D;
+    lineWidth?: number;
+    strokeStyle?: string;
+    to: Point2D;
+  }) {
     this.context.beginPath();
     this.context.moveTo(from.x, from.y);
     this.context.lineTo(to.x, to.y);
     this.context.closePath();
-    this.context.strokeStyle = SYNAPSE_STROKE_STYLE;
-    this.context.lineWidth = SYNAPSE_LINE_WIDTH;
+    this.context.strokeStyle = strokeStyle || SYNAPSE_STROKE_STYLE;
+    this.context.lineWidth = lineWidth || SYNAPSE_LINE_WIDTH;
     this.context.stroke();
   }
 
   drawSynapses() {
     this.network.enabledSynapses.forEach((synapse: Synapse) => {
-      const from = this.neuronLayoutMap.get('' + synapse.from.index);
-      const to = this.neuronLayoutMap.get('' + synapse.to.index);
+      const from = this.neuronLayoutMap.get(synapse.from.index);
+      const to = this.neuronLayoutMap.get(synapse.to.index);
+      const lineWidth = Math.max(
+        SYNAPSE_LINE_WIDTH_MIN,
+        Math.abs(
+          (synapse.weight / this.params.mutationPower) * SYNAPSE_LINE_WIDTH_MAX
+        )
+      );
+      let strokeStyle =
+        synapse.weight > 0
+          ? SYNAPSE_STROKE_STYLE_POSITIVE
+          : SYNAPSE_STROKE_STYLE_NEGATIVE;
+      if (synapse.weight === 0) {
+        strokeStyle = SYNAPSE_STROKE_STYLE;
+      }
       this.drawLine({
         from: { x: from.x, y: from.y },
+        lineWidth,
+        strokeStyle,
         to: { x: to.x, y: to.y },
       });
     });
@@ -149,8 +180,9 @@ export class NetworkVisualizer {
     );
   }
 
-  visualize(network: Network) {
+  visualize(network: Network, params: IPopulationParameters) {
     this.network = network;
+    this.params = params;
     this.calculateLayout();
     this.drawSynapses();
     this.drawNeurons();

@@ -6,12 +6,11 @@ import { defaultPopulationParameters } from 'neat/Population';
 test('Genome::mutateAddNode', () => {
   const params = { ...defaultPopulationParameters };
   const network: Network = NetworkFactory.build({
-    innovation: params.innovation,
     numInputs: 2,
     numOutputs: 1,
   });
   const genome: Genome = new Genome({ network });
-  genome.mutateAddNode(params);
+  genome.mutateAddNode();
   expect(genome.network.neuronMap.size).toEqual(4);
   expect(genome.network.synapseMap.size).toEqual(4);
 });
@@ -19,7 +18,6 @@ test('Genome::mutateAddNode', () => {
 test('Genome::mutateAddConnection', () => {
   const params = { ...defaultPopulationParameters };
   const network: Network = NetworkFactory.build({
-    innovation: params.innovation,
     numInputs: 2,
     numOutputs: 1,
   });
@@ -28,8 +26,8 @@ test('Genome::mutateAddConnection', () => {
   genome.mutateAddSynapse(params);
   // Default network is already fully connected
   expect(genome.network.synapseMap.size).toEqual(2);
-  genome.mutateAddNode(params);
-  genome.mutateAddNode(params);
+  genome.mutateAddNode();
+  genome.mutateAddNode();
   genome.mutateAddSynapse(params);
   expect(genome.network.synapseMap.size).toEqual(7);
 });
