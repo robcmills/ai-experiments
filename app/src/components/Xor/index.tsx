@@ -12,10 +12,11 @@ function run(xorNetwork: XorNetwork, visualizer: NetworkVisualizer) {
 export function Xor() {
   const parentRef = useRef();
   const networkVisRef = useRef<NetworkVisualizer>();
-  const xorNetworkRef = useRef(new XorNetwork());
+  const xorNetworkRef = useRef<XorNetwork>();
   useEffect(() => {
     if (parentRef.current) {
       networkVisRef.current = new NetworkVisualizer(parentRef.current);
+      xorNetworkRef.current = new XorNetwork();
       run(xorNetworkRef.current, networkVisRef.current);
     }
   }, [parentRef]);

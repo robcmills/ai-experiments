@@ -107,13 +107,11 @@ export class Genome {
     mutationPower,
     genomeWeightPerturbed,
   }: IPopulationParameters) {
-    this.network.synapses.forEach((synapse: Synapse) => {
-      const r = random(mutationPower, -mutationPower);
-      if (synapse.enabled) {
-        random() < genomeWeightPerturbed
-          ? (synapse.weight += r)
-          : (synapse.weight = r);
-      }
+    this.network.enabledSynapses.forEach((synapse: Synapse) => {
+      const r = random(-mutationPower, mutationPower);
+      random() < genomeWeightPerturbed
+        ? (synapse.weight += r)
+        : (synapse.weight -= r);
     });
   }
 
@@ -134,6 +132,10 @@ export class Genome {
       }
     }
     return this;
+  }
+
+  get weights() {
+    return this.network.synapses.map((s: Synapse) => s.weight);
   }
 
   // Compute the compatibility distance between two genomes

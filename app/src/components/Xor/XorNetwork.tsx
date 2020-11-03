@@ -9,10 +9,10 @@ import { Network } from 'neat/Network';
 // import { Organism } from 'neat/Organism';
 import { NetworkFactory } from 'neat/NetworkFactory';
 import { Genome } from 'neat/Genome';
-import {
-  defaultPopulationParameters,
-  IPopulationParameters,
-} from 'neat/Population';
+// import {
+//   defaultPopulationParameters,
+//   IPopulationParameters,
+// } from 'neat/Population';
 
 const xorTrainingData = [
   [[0, 0], [0]],
@@ -21,17 +21,17 @@ const xorTrainingData = [
   [[1, 1], [0]],
 ];
 
-const params: IPopulationParameters = {
-  ...defaultPopulationParameters,
-  adjustCompatibilityThreshold: true,
-  compatibilityModifierTarget: 30,
-  disjointCoefficient: 0.5,
-  excessCoefficient: 2,
-  feedForwardOnly: true,
-  fitnessThreshold: 15.9,
-  populationSize: 10,
-  weightDifferenceCoefficient: 1,
-};
+// const params: IPopulationParameters = {
+//   ...defaultPopulationParameters,
+//   adjustCompatibilityThreshold: true,
+//   compatibilityModifierTarget: 30,
+//   disjointCoefficient: 0.5,
+//   excessCoefficient: 2,
+//   feedForwardOnly: true,
+//   fitnessThreshold: 15.9,
+//   populationSize: 10,
+//   weightDifferenceCoefficient: 1,
+// };
 
 export class XorNetwork {
   network: Network = NetworkFactory.build({
@@ -42,8 +42,6 @@ export class XorNetwork {
   constructor() {
     const genome = new Genome();
     genome.network = this.network;
-    genome.mutateAddNode();
-    genome.mutateAddSynapse(params);
   }
 
   computeFitness() {
