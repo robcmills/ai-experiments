@@ -68,7 +68,7 @@ export class Population {
   populate(organism: Organism) {
     for (let i = 0; i < this.parameters.populationSize; i++) {
       const organismCopy = organism.copy();
-      organismCopy.genome.mutateConnectionsWeights(this.parameters);
+      organismCopy.genome.mutateWeights(this.parameters);
       this.addOrganism(organismCopy);
     }
     this.speciate();

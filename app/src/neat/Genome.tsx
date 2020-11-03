@@ -102,16 +102,15 @@ export class Genome {
     }
   }
 
-  // Mutate all connections
-  mutateConnectionsWeights({
-    mutationPower,
-    genomeWeightPerturbed,
-  }: IPopulationParameters) {
+  mutateWeights(
+    { mutationPower, genomeWeightPerturbed }: IPopulationParameters,
+    randomNumberGenerator = random
+  ) {
     this.network.enabledSynapses.forEach((synapse: Synapse) => {
-      const r = random(-mutationPower, mutationPower);
-      random() < genomeWeightPerturbed
-        ? (synapse.weight += r)
-        : (synapse.weight -= r);
+      const mutation = randomNumberGenerator(-mutationPower, mutationPower);
+      randomNumberGenerator() < genomeWeightPerturbed
+        ? (synapse.weight += mutation)
+        : (synapse.weight -= mutation);
     });
   }
 
@@ -122,7 +121,7 @@ export class Genome {
       this.mutateAddSynapse(params);
     } else {
       if (random() < params.mutateConnectionWeightsProbability) {
-        this.mutateConnectionsWeights(params);
+        this.mutateWeights(params);
       }
       if (random() < params.mutateToggleEnableProbability) {
         this.mutateToggleEnable();
