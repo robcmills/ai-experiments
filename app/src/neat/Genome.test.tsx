@@ -44,3 +44,16 @@ test('Genome::mutateWeights', () => {
   genome.mutateWeights(params, createNumberGenerator([1, 0, 2, 0]));
   expect(genome.weights).toEqual([2, 3]);
 });
+
+test('Genome::compatibility', () => {
+  const params = { ...defaultPopulationParameters };
+  const network: Network = NetworkFactory.build({
+    numInputs: 2,
+    numOutputs: 1,
+  });
+  const genome1: Genome = new Genome({ network });
+  const genome2: Genome = genome1.copy();
+  expect(Genome.compatibility(genome1, genome2, params)).toEqual(0);
+  genome2.mutate(params);
+  expect(Genome.compatibility(genome1, genome2, params)).not.toEqual(0);
+});

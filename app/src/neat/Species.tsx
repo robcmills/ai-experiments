@@ -135,7 +135,7 @@ export class Species {
         organism.fitness = 0;
         organism.generation = generation;
         if (superChamp!.expectedOffspring === 1) {
-          organism.genome.mutateGenome(params);
+          organism.genome.mutate(params);
         }
         superChamp!.expectedOffspring--;
         child = organism;
@@ -148,7 +148,7 @@ export class Species {
       } else if (random() < params.mutateOnlyProbability) {
         // Mutate only
         child = getRandomItem(children).copy(0, generation);
-        child.genome.mutateGenome(params);
+        child.genome.mutate(params);
       } else {
         // Mate
         const mom = getRandomItem(children);
@@ -174,7 +174,7 @@ export class Species {
           random() < params.mutateOnlyProbability ||
           Genome.compatibility(mom, dad, params) === 0
         )
-          child.genome.mutateGenome(params);
+          child.genome.mutate(params);
       }
 
       child.generation = generation;

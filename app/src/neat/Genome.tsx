@@ -114,7 +114,7 @@ export class Genome {
     });
   }
 
-  mutateGenome(params: IPopulationParameters) {
+  mutate(params: IPopulationParameters) {
     if (random() < params.mutateAddNodeProbability) {
       this.mutateAddNode();
     } else if (random() < params.mutateAddConnectionProbability) {
