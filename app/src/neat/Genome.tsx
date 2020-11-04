@@ -133,6 +133,15 @@ export class Genome {
     return this;
   }
 
+  toString(): string {
+    return this.network.synapses
+      .map(
+        (s) =>
+          `${s.index}:${s.from.index}->${s.to.index}${s.enabled ? '' : '*'}`
+      )
+      .join(' ');
+  }
+
   get weights() {
     return this.network.synapses.map((s: Synapse) => s.weight);
   }

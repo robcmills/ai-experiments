@@ -3,10 +3,10 @@ import { Neuron, NeuronType } from 'neat/Neuron';
 
 export class Network {
   inputs: Neuron[] = [];
-  neuronIndex: number = 0;
+  neuronIndex: number = 1;
   neuronMap: Map<number, Neuron> = new Map();
   outputs: Neuron[] = [];
-  synapseIndex: number = 0;
+  synapseIndex: number = 1;
   synapseMap: Map<number, Synapse> = new Map();
 
   get neurons(): Neuron[] {

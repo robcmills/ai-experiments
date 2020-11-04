@@ -7,14 +7,14 @@ import { randomBool } from 'util/random';
 import { isRecurrent } from 'util/isRecurrent';
 
 /**
- * Organisms are Genomes and Networks with fitness info.
+ * Organisms are Genomes with fitness info.
  * i.e. The genotype and phenotype together
  */
 export class Organism {
   expectedOffspring = 0;
   fitness = 0;
   generation = 0;
-  genome: Genome;
+  genome: Genome = new Genome();
   kill = false;
   originalFitness = 0;
   species?: Species;
