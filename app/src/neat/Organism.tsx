@@ -29,77 +29,84 @@ export class Organism {
     return clone;
   }
 
-  // Mate 2 organisms
   static crossover(
-    genome1: Organism,
-    genome2: Organism,
-    params: IPopulationParameters
+    parent1: Organism,
+    parent2: Organism,
+    params: IPopulationParameters,
+    getRandomBool = randomBool
   ): Organism {
     const child: Organism = new Organism();
 
-    // [moreFit, lessFit]
-    const [hFitParent, lFitParent] = [genome1, genome2].sort(
+    const [moreFitParent, lessFitParent] = [parent1, parent2].sort(
       descending((o: Organism) => o.fitness)
     );
 
-    let innovationNumbers: Set<number> = new Set([
-      ...hFitParent.genome.network.synapses.map((s: Synapse) => s.index),
-      ...lFitParent.genome.network.synapses.map((s: Synapse) => s.index),
+    // Crossover Neurons
+    const neuronIndexSet = new Set([
+      ...parent1.genome.network.neurons.map((n) => n.index),
+      ...parent2.genome.network.neurons.map((n) => n.index),
     ]);
-
-    // Ensure that all inputs and outputs are added to the organism
-    hFitParent.genome.network.neurons.forEach((neuron) => {
-      if (neuron.isInput || neuron.isOutput) {
-        child.genome.network.addNeuron(neuron.copy());
-      }
-    });
-
-    // todo: remove
-    // lFitParent.nodes.forEach(node => {
-    //     switch (node.type) {
-    //         case NodeType.Input:
-    //         case NodeType.Output:
-    //         case NodeType.Hidden:
-    //             child.addNode(node.copy());
-    //     }
-    // });
-
-    Array.from(innovationNumbers.values())
+    Array.from(neuronIndexSet.values())
       .sort(ascending())
-      .forEach((innovationNumber) => {
-        const hConnection = hFitParent.genome.network.synapseMap.get(
-          innovationNumber
-        )!;
-        const lConnection = lFitParent.genome.network.synapseMap.get(
-          innovationNumber
-        )!;
-
-        const connection =
-          hConnection && lConnection
-            ? // Matching gene
-              randomBool() &&
-              params.feedForwardOnly &&
-              !isRecurrent(hConnection, child.genome.network.synapses)
-              ? hConnection.copy()
-              : lConnection.copy()
-            : // excess/disjoint
-              (hConnection || lConnection).copy();
-
-        // Prevent the creation of RNNs if feed-forward only
-        if (
-          params.feedForwardOnly &&
-          isRecurrent(connection, child.genome.network.synapses)
-        ) {
-          return;
+      .forEach((index) => {
+        const moreFitParentNeuron = moreFitParent.genome.network.neuronMap.get(
+          index
+        );
+        const lessFitParentNeuron = lessFitParent.genome.network.neuronMap.get(
+          index
+        );
+        const isMatching = !!moreFitParentNeuron && !!lessFitParentNeuron;
+        let donorNeuron;
+        if (isMatching) {
+          donorNeuron = getRandomBool()
+            ? moreFitParentNeuron
+            : lessFitParentNeuron;
+        } else {
+          donorNeuron = moreFitParentNeuron || lessFitParentNeuron;
         }
+        const childNeuron = donorNeuron.copy();
+        childNeuron.inputs = [];
+        childNeuron.outputs = [];
+        child.genome.network.addNeuron(childNeuron);
+      });
 
-        child.genome.network.synapseMap.set(innovationNumber, connection);
-
-        connection.from = connection.from.copy();
-        connection.to = connection.to.copy();
-
-        child.genome.network.addNeuron(connection.from);
-        child.genome.network.addNeuron(connection.to);
+    // Crossover Synapses
+    const synapseIndexSet = new Set([
+      ...parent1.genome.network.synapses.map((s) => s.index),
+      ...parent2.genome.network.synapses.map((s) => s.index),
+    ]);
+    Array.from(synapseIndexSet.values())
+      .sort(ascending())
+      .forEach((index) => {
+        const moreFitParentSynapse = moreFitParent.genome.network.synapseMap.get(
+          index
+        );
+        const lessFitParentSynapse = lessFitParent.genome.network.synapseMap.get(
+          index
+        );
+        const isMatching = !!moreFitParentSynapse && !!lessFitParentSynapse;
+        let donorSynapse;
+        if (isMatching) {
+          donorSynapse = getRandomBool()
+            ? moreFitParentSynapse
+            : lessFitParentSynapse;
+        } else {
+          donorSynapse = moreFitParentSynapse || lessFitParentSynapse;
+        }
+        const childSynapse = donorSynapse.copy();
+        childSynapse.from = child.genome.network.neuronMap.get(
+          childSynapse.from.index
+        );
+        child.genome.network.neuronMap
+          .get(childSynapse.from.index)
+          .outputs.push(childSynapse);
+        childSynapse.to = child.genome.network.neuronMap.get(
+          childSynapse.to.index
+        );
+        child.genome.network.neuronMap
+          .get(childSynapse.to.index)
+          .inputs.push(childSynapse);
+        child.genome.network.addSynapse(childSynapse);
       });
 
     return child;

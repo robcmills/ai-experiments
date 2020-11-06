@@ -5,6 +5,8 @@ import { Organism } from 'neat/Organism';
 import { Neuron, NeuronType } from 'neat/Neuron';
 import { Synapse } from 'neat/Synapse';
 import { Genome } from 'neat/Genome';
+import { createNumberGenerator } from 'util/createNumberGenerator';
+import { createBooleanGenerator } from 'util/createBooleanGenerator';
 
 /*
  * Parent 1                        Parent 2
@@ -63,9 +65,6 @@ function buildParent1(): Organism {
   return new Organism({ fitness: 1, genome: genome1 });
 }
 
-// 1    2    3    4    5    6    7    9    10
-// 1->4 2->4 3->4 2->5 5->4 5->6 6->4 3->5 1->6
-//      dis            dis
 function buildParent2(): Organism {
   const network2: Network = NetworkFactory.build({
     numInputs: 3,
@@ -118,13 +117,21 @@ function buildParent2(): Organism {
 test('Organism::crossover', () => {
   const params = { ...defaultPopulationParameters };
   const parent1: Organism = buildParent1();
-  expect(parent1.genome.toString()).toEqual(
+  expect(parent1.genome.toStringSynapses()).toEqual(
     '1:1->4 2:2->4* 3:3->4 4:2->5 5:5->4 8:1->5'
   );
   const parent2: Organism = buildParent2();
-  expect(parent2.genome.toString()).toEqual(
+  expect(parent2.genome.toStringSynapses()).toEqual(
     '1:1->4 2:2->4* 3:3->4 4:2->5 5:5->4* 6:5->6 7:6->4 9:3->5 10:1->6'
   );
-  const child: Organism = Organism.crossover(parent1, parent2, params);
-  console.log('child.genome', child.genome.toString());
+  const child: Organism = Organism.crossover(
+    parent1,
+    parent2,
+    params,
+    () => false
+  );
+  expect(child.genome.toStringNeurons()).toEqual('1:0 2:0 3:0 4:0 5:0 6:0');
+  expect(child.genome.toStringSynapses()).toEqual(
+    '1:1->4 2:2->4* 3:3->4 4:2->5 5:5->4* 6:5->6 7:6->4 8:1->5 9:3->5 10:1->6'
+  );
 });

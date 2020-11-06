@@ -133,7 +133,13 @@ export class Genome {
     return this;
   }
 
-  toString(): string {
+  toStringNeurons(): string {
+    return this.network.neurons
+      .map((n) => `${n.index}:${n.activation}`)
+      .join(' ');
+  }
+
+  toStringSynapses(): string {
     return this.network.synapses
       .map(
         (s) =>
