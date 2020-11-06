@@ -135,7 +135,18 @@ export class Genome {
 
   toStringNeurons(): string {
     return this.network.neurons
-      .map((n) => `${n.index}:${n.activation}`)
+      .map(
+        (n) =>
+          `${n.index}:inputs:[${n.inputs
+            .map(
+              (s) => s.from.index + '->' + s.to.index + (s.enabled ? '' : '*')
+            )
+            .join(',')}]:outputs:[${n.outputs
+            .map(
+              (s) => s.from.index + '->' + s.to.index + (s.enabled ? '' : '*')
+            )
+            .join(',')}]`
+      )
       .join(' ');
   }
 
