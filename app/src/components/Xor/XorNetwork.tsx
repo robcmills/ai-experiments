@@ -7,8 +7,9 @@ import { Network } from 'neat/Network';
 // import { Neuron, NeuronType } from 'neat/Neuron';
 // import { Synapse } from 'neat/Synapse';
 // import { Organism } from 'neat/Organism';
-import { NetworkFactory } from 'neat/NetworkFactory';
-import { Genome } from 'neat/Genome';
+import { Organism } from 'neat/Organism';
+import { buildParent1, buildParent2 } from 'neat/helpers/crossoverHelpers';
+import { defaultPopulationParameters } from 'neat/Population';
 // import {
 //   defaultPopulationParameters,
 //   IPopulationParameters,
@@ -34,15 +35,22 @@ const xorTrainingData = [
 // };
 
 export class XorNetwork {
-  network: Network = NetworkFactory.build({
-    numInputs: 3,
-    numOutputs: 1,
-  });
+  organism: Organism = Organism.crossover(
+    buildParent1(),
+    buildParent2(),
+    defaultPopulationParameters,
+    () => false
+  );
+  network: Network = this.organism.genome.network;
+  // network: Network = NetworkFactory.build({
+  //   numInputs: 3,
+  //   numOutputs: 1,
+  // });
 
-  constructor() {
-    const genome = new Genome();
-    genome.network = this.network;
-  }
+  // constructor() {
+  // const genome = new Genome();
+  // genome.network = this.network;
+  // }
 
   computeFitness() {
     let fitness = 2;

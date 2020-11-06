@@ -2,9 +2,7 @@ import { Genome } from 'neat/Genome';
 import { Species } from 'neat/Species';
 import { IPopulationParameters } from 'neat/Population';
 import { ascending, descending } from 'util/sortFunctions';
-import { Synapse } from 'neat/Synapse';
 import { randomBool } from 'util/random';
-import { isRecurrent } from 'util/isRecurrent';
 
 /**
  * Organisms are Genomes with fitness info.

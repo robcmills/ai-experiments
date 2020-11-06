@@ -72,7 +72,7 @@ export class NetworkVisualizer {
       this.hiddenLayersIndices.set(layer, 0);
       index = 0;
     }
-    let nextLayer: Map<string, Neuron> = new Map();
+    let nextLayer: Map<number, Neuron> = new Map();
     neuronLayer.forEach((neuron) => {
       if (neuron.isOutput) {
         return;
@@ -86,7 +86,7 @@ export class NetworkVisualizer {
       neuron.enabledOutputs
         .map((s) => s.to)
         .forEach((neuron) => {
-          nextLayer.set('' + neuron.index, neuron);
+          nextLayer.set(neuron.index, neuron);
         });
     });
     if (nextLayer.size) {
