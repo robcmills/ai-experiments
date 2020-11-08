@@ -3,8 +3,6 @@ import { Population } from 'neat/Population';
 import { getRandomItem } from 'util/getRandomItem';
 import { descending } from 'util/sortFunctions';
 import { random } from 'util/random';
-import { gaussian } from 'util/gaussian';
-import { wrap } from 'util/wrap';
 import { Genome } from 'neat/Genome';
 import { INeatParams } from 'neat/NeatParams';
 
@@ -25,16 +23,6 @@ export class Species {
   averageFitness: number = 0;
   // Number of expected offspring in proportion to the sum of adjusted fitnesses
   expectedOffspring: number = 0;
-
-  // todo: clean up and test
-  // Returns a semi-random species, tending towards more fit species
-  static pick(sortedSpecies: Species[]) {
-    const random = Math.min(Math.round(gaussian().next().value as number), 1);
-    const index = wrap(0, sortedSpecies.length - 1, random);
-    // const multiplier = Math.min(gaussian().next().value / 4, 1);
-    // const index = Math.floor(multiplier * (species.length - 1) + 0.5);
-    return sortedSpecies[index];
-  }
 
   addOrganism(organism: Organism) {
     if (!this.specimen) {
@@ -161,7 +149,7 @@ export class Species {
           let tries = 0;
           let randomSpecies: Species = this;
           while (randomSpecies === this && tries++ < 5) {
-            const species = Species.pick(sortedSpecies);
+            const species = getRandomItem(sortedSpecies);
             if (species.organisms.length) {
               randomSpecies = species;
             }
