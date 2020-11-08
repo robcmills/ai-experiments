@@ -1,8 +1,10 @@
 import { Neuron, NeuronType } from 'neat/Neuron';
 import { Synapse } from 'neat/Synapse';
 import { Network } from 'neat/Network';
+import { Innovator } from 'util/innovator';
 
 interface INetworkFactoryBuildParams {
+  innovator: Innovator;
   numInputs?: number;
   numOutputs?: number;
 }
@@ -35,7 +37,7 @@ export class NetworkFactory {
 
     const network = new Network();
     network.addNeurons(inputs.concat(outputs));
-    network.addSynapses(synapses);
+    network.addSynapses(synapses, params.innovator);
 
     return network;
   }

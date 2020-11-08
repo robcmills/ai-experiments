@@ -1,19 +1,6 @@
 import { Network } from 'neat/Network';
-// import {
-//   defaultPopulationParameters,
-//   IPopulationParameters,
-//   Population,
-// } from 'neat/Population';
-// import { Neuron, NeuronType } from 'neat/Neuron';
-// import { Synapse } from 'neat/Synapse';
-// import { Organism } from 'neat/Organism';
-import { Organism } from 'neat/Organism';
-import { buildParent1, buildParent2 } from 'neat/helpers/crossoverHelpers';
-import { defaultPopulationParameters } from 'neat/Population';
-// import {
-//   defaultPopulationParameters,
-//   IPopulationParameters,
-// } from 'neat/Population';
+import { defaultNeatParams, INeatParams } from 'neat/NeatParams';
+import { NetworkFactory } from 'neat/NetworkFactory';
 
 const xorTrainingData = [
   [[0, 0], [0]],
@@ -22,35 +9,16 @@ const xorTrainingData = [
   [[1, 1], [0]],
 ];
 
-// const params: IPopulationParameters = {
-//   ...defaultPopulationParameters,
-//   adjustCompatibilityThreshold: true,
-//   compatibilityModifierTarget: 30,
-//   disjointCoefficient: 0.5,
-//   excessCoefficient: 2,
-//   feedForwardOnly: true,
-//   fitnessThreshold: 15.9,
-//   populationSize: 10,
-//   weightDifferenceCoefficient: 1,
-// };
+const params: INeatParams = {
+  ...defaultNeatParams,
+};
 
 export class XorNetwork {
-  organism: Organism = Organism.crossover(
-    buildParent1(),
-    buildParent2(),
-    defaultPopulationParameters,
-    () => false
-  );
-  network: Network = this.organism.genome.network;
-  // network: Network = NetworkFactory.build({
-  //   numInputs: 3,
-  //   numOutputs: 1,
-  // });
-
-  // constructor() {
-  // const genome = new Genome();
-  // genome.network = this.network;
-  // }
+  network: Network = NetworkFactory.build({
+    innovator: params.innovator,
+    numInputs: 2,
+    numOutputs: 1,
+  });
 
   computeFitness() {
     let fitness = 2;

@@ -1,11 +1,12 @@
 import { Organism } from 'neat/Organism';
-import { IPopulationParameters, Population } from 'neat/Population';
+import { Population } from 'neat/Population';
 import { getRandomItem } from 'util/getRandomItem';
 import { descending } from 'util/sortFunctions';
 import { random } from 'util/random';
 import { gaussian } from 'util/gaussian';
 import { wrap } from 'util/wrap';
 import { Genome } from 'neat/Genome';
+import { INeatParams } from 'neat/NeatParams';
 
 export class Species {
   // The organisms of the species
@@ -57,7 +58,7 @@ export class Species {
     return this.organisms[0];
   }
 
-  adjustFitness(params: IPopulationParameters): void {
+  adjustFitness(params: INeatParams): void {
     let totalFitness = 0;
     this.extinct = this.age - this.ageOfLastImprovement + 1 > params.dropoffAge;
 
@@ -108,7 +109,7 @@ export class Species {
     sortedSpecies,
   }: {
     generation: number;
-    params: IPopulationParameters;
+    params: INeatParams;
     population: Population;
     sortedSpecies: Species[];
   }): void {
@@ -168,7 +169,7 @@ export class Species {
           dad = randomSpecies.getChampion();
         }
 
-        child = Organism.crossover(dad, mom, params);
+        child = Organism.crossover(dad, mom);
 
         if (
           random() < params.mutateOnlyProbability ||

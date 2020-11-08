@@ -1,24 +1,26 @@
 import { Network } from 'neat/Network';
 import { NetworkFactory } from 'neat/NetworkFactory';
 import { Genome } from 'neat/Genome';
-import { defaultPopulationParameters } from 'neat/Population';
 import { createNumberGenerator } from 'util/createNumberGenerator';
+import { defaultNeatParams } from 'neat/NeatParams';
 
 test('Genome::mutateAddNode', () => {
-  const params = { ...defaultPopulationParameters };
+  const params = { ...defaultNeatParams };
   const network: Network = NetworkFactory.build({
+    innovator: params.innovator,
     numInputs: 2,
     numOutputs: 1,
   });
   const genome: Genome = new Genome({ network });
-  genome.mutateAddNode();
+  genome.mutateAddNode(params.innovator);
   expect(genome.network.neuronMap.size).toEqual(4);
   expect(genome.network.synapseMap.size).toEqual(4);
 });
 
 test('Genome::mutateAddConnection', () => {
-  const params = { ...defaultPopulationParameters };
+  const params = { ...defaultNeatParams };
   const network: Network = NetworkFactory.build({
+    innovator: params.innovator,
     numInputs: 2,
     numOutputs: 1,
   });
@@ -27,15 +29,16 @@ test('Genome::mutateAddConnection', () => {
   genome.mutateAddSynapse(params);
   // Default network is already fully connected
   expect(genome.network.synapseMap.size).toEqual(2);
-  genome.mutateAddNode();
-  genome.mutateAddNode();
+  genome.mutateAddNode(params.innovator);
+  genome.mutateAddNode(params.innovator);
   genome.mutateAddSynapse(params);
   expect(genome.network.synapseMap.size).toEqual(7);
 });
 
 test('Genome::mutateWeights', () => {
-  const params = { ...defaultPopulationParameters };
+  const params = { ...defaultNeatParams };
   const network: Network = NetworkFactory.build({
+    innovator: params.innovator,
     numInputs: 2,
     numOutputs: 1,
   });
@@ -46,8 +49,9 @@ test('Genome::mutateWeights', () => {
 });
 
 test('Genome::compatibility', () => {
-  const params = { ...defaultPopulationParameters };
+  const params = { ...defaultNeatParams };
   const network: Network = NetworkFactory.build({
+    innovator: params.innovator,
     numInputs: 2,
     numOutputs: 1,
   });

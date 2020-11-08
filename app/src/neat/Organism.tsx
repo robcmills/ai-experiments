@@ -1,8 +1,8 @@
 import { Genome } from 'neat/Genome';
 import { Species } from 'neat/Species';
-import { IPopulationParameters } from 'neat/Population';
 import { ascending, descending } from 'util/sortFunctions';
 import { randomBool } from 'util/random';
+import { INeatParams } from 'neat/NeatParams';
 
 /**
  * Organisms are Genomes with fitness info.
@@ -30,7 +30,6 @@ export class Organism {
   static crossover(
     parent1: Organism,
     parent2: Organism,
-    params: IPopulationParameters,
     getRandomBool = randomBool
   ): Organism {
     const child: Organism = new Organism();
@@ -69,18 +68,18 @@ export class Organism {
       });
 
     // Crossover Synapses
-    const synapseIndexSet = new Set([
-      ...parent1.genome.network.synapses.map((s) => s.index),
-      ...parent2.genome.network.synapses.map((s) => s.index),
+    const synapseInnovationSet = new Set([
+      ...parent1.genome.network.synapses.map((s) => s.innovation),
+      ...parent2.genome.network.synapses.map((s) => s.innovation),
     ]);
-    Array.from(synapseIndexSet.values())
+    Array.from(synapseInnovationSet.values())
       .sort(ascending())
-      .forEach((index) => {
+      .forEach((innovation) => {
         const moreFitParentSynapse = moreFitParent.genome.network.synapseMap.get(
-          index
+          innovation
         );
         const lessFitParentSynapse = lessFitParent.genome.network.synapseMap.get(
-          index
+          innovation
         );
         const isMatching = !!moreFitParentSynapse && !!lessFitParentSynapse;
         let donorSynapse;
@@ -104,7 +103,10 @@ export class Organism {
         child.genome.network.neuronMap
           .get(childSynapse.to.index)
           .inputs.push(childSynapse);
-        child.genome.network.addSynapse(childSynapse);
+        child.genome.network.synapseMap.set(
+          childSynapse.innovation,
+          childSynapse
+        );
       });
 
     return child;
@@ -112,7 +114,7 @@ export class Organism {
 
   // Puts the organism into compatible species
   static speciate(
-    params: IPopulationParameters,
+    params: INeatParams,
     organism: Organism,
     allSpecies: Species[]
   ) {

@@ -1,12 +1,12 @@
 import { Synapse } from 'neat/Synapse';
 import { Neuron, NeuronType } from 'neat/Neuron';
+import { Innovator } from 'util/innovator';
 
 export class Network {
   inputs: Neuron[] = [];
   neuronIndex: number = 1;
   neuronMap: Map<number, Neuron> = new Map();
   outputs: Neuron[] = [];
-  synapseIndex: number = 1;
   synapseMap: Map<number, Synapse> = new Map();
 
   get neurons(): Neuron[] {
@@ -53,14 +53,14 @@ export class Network {
     });
   }
 
-  addSynapse(synapse: Synapse) {
-    synapse.index = this.synapseIndex++;
-    this.synapseMap.set(synapse.index, synapse);
+  addSynapse(synapse: Synapse, innovator: Innovator) {
+    synapse.innovation = innovator.next().value;
+    this.synapseMap.set(synapse.innovation, synapse);
   }
 
-  addSynapses(synapses: Synapse[]) {
+  addSynapses(synapses: Synapse[], innovator: Innovator) {
     synapses.forEach((synapse) => {
-      this.addSynapse(synapse);
+      this.addSynapse(synapse, innovator);
     });
   }
 
@@ -73,15 +73,15 @@ export class Network {
       const synapseCopy = synapse.copy();
       synapseCopy.from = this.neuronMap.get(synapseCopy.from.index);
       synapseCopy.to = this.neuronMap.get(synapseCopy.to.index);
-      networkCopy.addSynapse(synapseCopy);
+      networkCopy.synapseMap.set(synapseCopy.innovation, synapseCopy);
     });
     networkCopy.neurons.forEach((neuron) => {
       neuron.inputs = neuron.inputs.reduce((acc, synapse) => {
-        acc.push(networkCopy.synapseMap.get(synapse.index));
+        acc.push(networkCopy.synapseMap.get(synapse.innovation));
         return acc;
       }, []);
       neuron.outputs = neuron.outputs.reduce((acc, synapse) => {
-        acc.push(networkCopy.synapseMap.get(synapse.index));
+        acc.push(networkCopy.synapseMap.get(synapse.innovation));
         return acc;
       }, []);
     });

@@ -3,7 +3,7 @@ import { Neuron } from 'neat/Neuron';
 export class Synapse {
   enabled = true;
   from: Neuron;
-  index = 0;
+  innovation: number;
   to: Neuron;
   weight = 1;
 

@@ -1,7 +1,7 @@
 import { Network } from 'neat/Network';
 import { Neuron, NeuronType } from 'neat/Neuron';
 import { Synapse } from 'neat/Synapse';
-import { IPopulationParameters } from 'neat/Population';
+import { INeatParams } from 'neat/NeatParams';
 
 const CIRCLE_END_ANGLE = 2 * Math.PI;
 const FONT = 'monospace';
@@ -38,7 +38,7 @@ export class NetworkVisualizer {
   network: Network;
   hiddenLayersIndices: Map<number, number> = new Map();
   neuronLayoutMap: Map<number, LayoutNeuron> = new Map();
-  params: IPopulationParameters;
+  params: INeatParams;
 
   constructor(parent: HTMLElement) {
     parent.appendChild(this.canvas);
@@ -180,7 +180,7 @@ export class NetworkVisualizer {
     );
   }
 
-  visualize(network: Network, params: IPopulationParameters) {
+  visualize(network: Network, params: INeatParams) {
     this.network = network;
     this.params = params;
     this.calculateLayout();
