@@ -7,17 +7,17 @@ import { INeatParams } from 'neat/NeatParams';
 export class Population {
   generation: number = 1;
   organisms: Organism[] = [];
-  parameters: INeatParams;
+  params: INeatParams;
   species: Species[] = [];
 
-  constructor(parameters: INeatParams) {
-    this.parameters = parameters;
+  constructor(params: INeatParams) {
+    this.params = params;
   }
 
   populate(organism: Organism) {
-    for (let i = 0; i < this.parameters.populationSize; i++) {
+    for (let i = 0; i < this.params.populationSize; i++) {
       const organismCopy = organism.copy();
-      organismCopy.genome.mutateWeights(this.parameters);
+      organismCopy.genome.mutateWeights(this.params);
       this.addOrganism(organismCopy);
     }
     this.speciate();
@@ -42,34 +42,34 @@ export class Population {
 
   speciate(): void {
     this.organisms.forEach((organism) =>
-      Organism.speciate(this.parameters, organism, this.species)
+      Organism.speciate(this.params, organism, this.species)
     );
   }
 
   epoch() {
     this.generation++;
-    const { species, parameters, generation } = this;
+    const { species, params, generation } = this;
     const organisms = [...this.organisms];
 
     // Adjust compatibility threshold
     if (
-      parameters.adjustCompatibilityThreshold &&
-      species.length !== parameters.compatibilityModifierTarget
+      params.adjustCompatibilityThreshold &&
+      species.length !== params.compatibilityModifierTarget
     ) {
-      parameters.compatibilityThreshold +=
-        -parameters.compatibilityModifier *
-        (species.length > parameters.compatibilityModifierTarget ? -1 : 1);
+      params.compatibilityThreshold +=
+        -params.compatibilityModifier *
+        (species.length > params.compatibilityModifierTarget ? -1 : 1);
 
-      parameters.compatibilityThreshold = Math.max(
-        parameters.compatibilityThreshold,
-        parameters.compatibilityModifier
+      params.compatibilityThreshold = Math.max(
+        params.compatibilityThreshold,
+        params.compatibilityModifier
       );
     }
 
     // Adjust fitness of species' organisms
     let overallAverage = 0;
     species.forEach((species) => {
-      species.adjustFitness(parameters);
+      species.adjustFitness(params);
       overallAverage += species.averageFitness;
     });
 
@@ -92,12 +92,11 @@ export class Population {
     // Reproduce all species
     sortedSpecies.forEach((species) => {
       species.expectedOffspring = Math.round(
-        (species.averageFitness / overallAverage) *
-          this.parameters.populationSize
+        (species.averageFitness / overallAverage) * this.params.populationSize
       );
       species.reproduce({
         generation,
-        params: parameters,
+        params: params,
         population: this,
         sortedSpecies,
       });
@@ -130,7 +129,7 @@ export class Population {
     delay: number = 0
   ): Promise<Organism> {
     return new Promise(async (resolve, reject) => {
-      const { parameters } = this;
+      const { params } = this;
       while (!Number.isFinite(maxRuns) || maxRuns--) {
         for (const organism of this.organisms) {
           const network = organism.genome.network;
@@ -139,7 +138,7 @@ export class Population {
             organism,
             population: this!,
           });
-          if (organism.fitness >= parameters.fitnessThreshold) {
+          if (organism.fitness >= params.fitnessThreshold) {
             return resolve(organism);
           }
         }

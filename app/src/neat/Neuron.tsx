@@ -1,5 +1,5 @@
 import { Synapse } from 'neat/Synapse';
-import { relu } from 'network/activations';
+import { sigmoid } from 'network/activations';
 
 export enum NeuronType {
   Bias,
@@ -13,7 +13,7 @@ export class Neuron {
   index: number = -1;
   inputs: Synapse[] = [];
   outputs: Synapse[] = [];
-  squash = relu;
+  squash = sigmoid;
   state = 0;
   type: NeuronType = NeuronType.Hidden;
 

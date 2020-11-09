@@ -6,7 +6,7 @@ import { defaultNeatParams } from 'neat/NeatParams';
 function run(xorNetwork: XorNetwork, visualizer: NetworkVisualizer) {
   console.log('xorNetwork', xorNetwork);
   visualizer.visualize(xorNetwork.network, defaultNeatParams);
-  // xorNetwork.run();
+  xorNetwork.run();
 }
 
 export function Xor() {

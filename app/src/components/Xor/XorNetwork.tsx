@@ -1,6 +1,8 @@
 import { Network } from 'neat/Network';
 import { defaultNeatParams, INeatParams } from 'neat/NeatParams';
 import { NetworkFactory } from 'neat/NetworkFactory';
+import { Organism } from 'neat/Organism';
+import { Population } from 'neat/Population';
 
 const xorTrainingData = [
   [[0, 0], [0]],
@@ -19,22 +21,28 @@ export class XorNetwork {
     numInputs: 2,
     numOutputs: 1,
   });
+  organism: Organism = new Organism();
+  population: Population = new Population(params);
 
-  computeFitness() {
+  fitness({ network }: { network: Network }) {
     let fitness = 2;
     xorTrainingData.sort(() => Math.random() - 0.5);
     xorTrainingData.forEach(([inputs, expected]) => {
-      const [output] = this.network.activate(inputs);
+      const [output] = network.activate(inputs);
       fitness -= Math.abs(output - expected[0]);
     });
-    return fitness ** 2;
+    fitness = fitness ** 2;
+    return fitness;
   }
 
-  // run() {
-  //   const organism = new Organism(this.network);
-  //   console.log('organism', organism);
-  //   const population = new Population(params);
-  //   population.populate(organism);
-  //   console.log('population', population);
-  // }
+  run() {
+    this.organism.genome.network = this.network;
+    this.population.populate(this.organism);
+    this.population.run(this.fitness, 10).then((organism) => {
+      xorTrainingData.forEach(([inputs, expected]) => {
+        const [output] = organism.genome.network.activate(inputs);
+        console.log('inputs', inputs, 'expected', expected, 'output', output);
+      });
+    });
+  }
 }
