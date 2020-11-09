@@ -129,7 +129,7 @@ export class Organism {
         const isCompatible =
           Genome.compatibility(
             organism.genome,
-            species.getSpecimen().genome,
+            species.specimen.genome,
             params
           ) < compatibilityThreshold;
         if (isCompatible) {

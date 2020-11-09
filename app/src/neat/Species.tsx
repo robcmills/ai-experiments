@@ -34,12 +34,9 @@ export class Species {
 
   removeOrganism(organism: Organism) {
     const index = this.organisms.indexOf(organism);
-    if (index >= 0) this.organisms.splice(index, 1);
-  }
-
-  // todo: necessary?
-  getSpecimen(): Organism {
-    return this.specimen!;
+    if (index >= 0) {
+      this.organisms.splice(index, 1);
+    }
   }
 
   getChampion(): Organism {
@@ -87,8 +84,7 @@ export class Species {
 
   /**
    * Perform mating and mutation to form next generation.
-   * The sorted_species is ordered to have best species in the beginning.
-   * Returns list of child organisms as a result of reproduction of all organisms in this species.
+   * The sortedSpecies is ordered to have most fit species first.
    */
   reproduce({
     generation,
