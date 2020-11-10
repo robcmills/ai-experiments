@@ -136,7 +136,7 @@ export class Species {
         child.genome.mutate(params);
       } else {
         // Mate
-        const mom = getRandomItem(children);
+        const mom: Organism = getRandomItem(children);
         let dad;
         if (random() > params.interSpeciesMateRate) {
           dad = getRandomItem(children);
@@ -157,7 +157,7 @@ export class Species {
 
         if (
           random() < params.mutateOnlyProbability ||
-          Genome.compatibility(mom, dad, params) === 0
+          Genome.compatibility(mom.genome, dad.genome, params) === 0
         )
           child.genome.mutate(params);
       }

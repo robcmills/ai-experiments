@@ -130,25 +130,29 @@ export class Population {
   ): Promise<Organism> {
     return new Promise(async (resolve, reject) => {
       const { params } = this;
-      while (!Number.isFinite(maxRuns) || maxRuns--) {
-        for (const organism of this.organisms) {
-          const network = organism.genome.network;
-          organism.fitness = await fitness({
-            network,
-            organism,
-            population: this!,
-          });
-          if (organism.fitness >= params.fitnessThreshold) {
-            return resolve(organism);
+      try {
+        while (!Number.isFinite(maxRuns) || maxRuns--) {
+          for (const organism of this.organisms) {
+            const network = organism.genome.network;
+            organism.fitness = fitness({
+              network,
+              organism,
+              population: this!,
+            });
+            if (organism.fitness >= params.fitnessThreshold) {
+              return resolve(organism);
+            }
+          }
+          this.epoch();
+          resolve(this.getSuperChamp());
+
+          if (delay) {
+            await new Promise((resolve) => setTimeout(resolve, delay));
           }
         }
-        this!.epoch();
-
-        if (delay) {
-          await new Promise((resolve) => setTimeout(resolve, delay));
-        }
+      } catch (error) {
+        reject(error);
       }
-      reject();
     });
   }
 }

@@ -38,7 +38,7 @@ export class XorNetwork {
   run() {
     this.organism.genome.network = this.network;
     this.population.populate(this.organism);
-    this.population.run(this.fitness, 10).then((organism) => {
+    this.population.run(this.fitness, 100).then((organism) => {
       xorTrainingData.forEach(([inputs, expected]) => {
         const [output] = organism.genome.network.activate(inputs);
         console.log('inputs', inputs, 'expected', expected, 'output', output);

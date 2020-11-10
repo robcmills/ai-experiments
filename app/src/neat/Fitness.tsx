@@ -6,4 +6,4 @@ export type Fitness = (args: {
   network: Network;
   organism: Organism;
   population: Population;
-}) => number | Promise<number>;
+}) => number;
