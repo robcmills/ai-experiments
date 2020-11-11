@@ -47,7 +47,7 @@ export const defaultNeatParams: INeatParams = {
   mutateConnectionWeightsProbability: 0.9,
   mutateOnlyProbability: 0.2,
   mutateToggleEnableProbability: 0,
-  mutationPower: 2.5,
+  mutationPower: 0.1,
   populationSize: 100,
   reEnableGeneProbability: 0.05,
   survivalThreshold: 0.2,

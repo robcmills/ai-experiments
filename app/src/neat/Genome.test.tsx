@@ -58,7 +58,6 @@ test('Genome::compatibility', () => {
   const genome1: Genome = new Genome({ network });
   const genome2: Genome = genome1.copy();
   expect(Genome.compatibility(genome1, genome2, params)).toEqual(0);
-  // Todo: mutate sometimes does not change genome and fails test.
-  genome2.mutate(params);
+  genome2.mutateWeights(params);
   expect(Genome.compatibility(genome1, genome2, params)).not.toEqual(0);
 });

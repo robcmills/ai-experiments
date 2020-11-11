@@ -174,7 +174,6 @@ export class Genome {
     genome2: Genome,
     params: INeatParams
   ): number {
-    // TODO: Memoize? Consider add an id and use it for that purpose
     let innovationNumbers: Set<number> = new Set([
       ...genome1.network.synapses.map((s: Synapse) => s.innovation),
       ...genome2.network.synapses.map((s: Synapse) => s.innovation),
