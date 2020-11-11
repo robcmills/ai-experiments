@@ -7111,6 +7111,11 @@ natural-compare@^1.4.0:
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha1-Sr6/7tdUHywnrPspvbvRXI1bpPc=
 
+neataptic@^1.4.7:
+  version "1.4.7"
+  resolved "https://registry.yarnpkg.com/neataptic/-/neataptic-1.4.7.tgz#88cc00df1915572fe1af61652e3b1f87a7f50e74"
+  integrity sha512-nnCkg5QitBYXRB6MpJEhGwqDp/oIaD8RthXb8VmpYYxA8XGdMyATwOEuDFgBGlvmR8hNEzYy6E/a6LT6HngSCQ==
+
 negotiator@0.6.2:
   version "0.6.2"
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.2.tgz#feacf7ccf525a77ae9634436a64883ffeca346fb"
