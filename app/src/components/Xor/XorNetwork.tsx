@@ -22,7 +22,7 @@ export class XorNetwork {
     numOutputs: 1,
   });
   organism: Organism = new Organism();
-  population: Population = new Population(params);
+  population: Population = new Population({ params });
 
   fitness({ network }: { network: Network }) {
     let fitness = 2;

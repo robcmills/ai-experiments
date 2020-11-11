@@ -10,8 +10,8 @@ export class Population {
   params: INeatParams;
   species: Species[] = [];
 
-  constructor(params: INeatParams) {
-    this.params = params;
+  constructor(population: Partial<Population>) {
+    Object.assign(this, population);
   }
 
   populate(organism: Organism) {
