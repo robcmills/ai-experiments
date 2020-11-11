@@ -126,12 +126,12 @@ export class Organism {
         if (!species.organisms.length) {
           return false;
         }
-        const isCompatible =
-          Genome.compatibility(
-            organism.genome,
-            species.specimen.genome,
-            params
-          ) < compatibilityThreshold;
+        const compatibility = Genome.compatibility(
+          organism.genome,
+          species.specimen.genome,
+          params
+        );
+        const isCompatible = compatibility < compatibilityThreshold;
         if (isCompatible) {
           species.addOrganism(organism);
         }
