@@ -1,10 +1,8 @@
 import React from 'react';
 import './App.css';
 
-// import { Game } from 'components/Game';
-import { Xor } from 'components/Xor';
+import { Duel } from 'components/Duel';
 
 export function App() {
-  // return <Game />;
-  return <Xor />;
+  return <Duel />;
 }
