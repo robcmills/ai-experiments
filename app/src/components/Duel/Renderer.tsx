@@ -1,4 +1,5 @@
 import { config } from 'components/Duel/config';
+import { Game } from 'components/Duel/Game';
 
 export class Renderer {
   private canvas: HTMLCanvasElement;
@@ -17,4 +18,6 @@ export class Renderer {
     this.canvas.height = config.canvasHeight;
     this.canvas.width = config.canvasWidth;
   }
+
+  render(game: Game) {}
 }
