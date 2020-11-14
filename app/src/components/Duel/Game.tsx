@@ -2,6 +2,8 @@ import { Player } from 'components/Duel/Player';
 import { Health } from 'components/Duel/Health';
 import { NetworkType } from 'components/Duel/NeatTypes';
 
+const RUN_STEPS = 100;
+
 export class Game {
   healthsByIndex: Map<number, Health> = new Map();
   playersByIndex: Map<number, Player> = new Map();
@@ -27,18 +29,19 @@ export class Game {
   }
 
   addRandomHealth() {
-    const remove = () => this.removeHealth(this.nextHealthIndex);
-    this.healthsByIndex.set(this.nextHealthIndex, new Health(remove));
+    this.healthsByIndex.set(this.nextHealthIndex, new Health());
   }
 
-  removeHealth(index: number) {
-    this.healthsByIndex.delete(index);
+  run() {
+    for (let i = 0; i < RUN_STEPS; i++) {
+      this.step();
+    }
   }
 
   step() {
     this.players.forEach((player) => {
       if (player.health > 0) {
-        player.step(this.healths);
+        player.step(this);
       }
     });
   }

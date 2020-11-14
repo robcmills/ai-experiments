@@ -1,9 +1,11 @@
 import { Vector2 } from 'util/Vector2';
-import { Health } from 'components/Duel/Health';
 import { NetworkType } from 'components/Duel/NeatTypes';
 import { config } from 'components/Duel/config';
+import { Game } from 'components/Duel/Game';
+const { canvasHeight, canvasWidth } = config;
 
-const PLAYER_RADIUS = 1;
+export const PLAYER_RADIUS =
+  0.005 * (canvasHeight > canvasWidth ? canvasWidth : canvasHeight);
 
 export class Player {
   public age = 0;
@@ -17,12 +19,17 @@ export class Player {
     Object.assign(this, player);
   }
 
-  step(healths: Health[]) {
+  score(game: Game) {
+    return this.health - this.position.distanceTo(game.healths[0].position);
+  }
+
+  step(game: Game) {
     this.age++;
-    const health = healths[0];
+    const health = game.healths[0];
     const inputs = [
       health.position.x,
       health.position.y,
+      health.amount,
       this.position.x,
       this.position.y,
     ];
@@ -39,15 +46,13 @@ export class Player {
       this.health = 0;
     }
 
-    this.health--;
-    // if (
-    //   this.position.distanceTo(health.position) <
-    //   this.radius + health.radius
-    // ) {
-    //   this.health += health.amount;
-    //   health.remove();
-    // } else {
-    //   this.health -= 1;
-    // }
+    if (
+      this.position.distanceTo(health.position) <
+      this.radius + health.radius
+    ) {
+      this.health += health.amount;
+    } else {
+      this.health -= 1;
+    }
   }
 }

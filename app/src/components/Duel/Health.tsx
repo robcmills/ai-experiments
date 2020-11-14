@@ -1,14 +1,15 @@
 import { Vector2 } from 'util/Vector2';
+import { config } from 'components/Duel/config';
+const { canvasHeight, canvasWidth } = config;
 
-const HEALTH_RADIUS = 1;
+export const HEALTH_RADIUS =
+  0.02 * (canvasHeight > canvasWidth ? canvasWidth : canvasHeight);
 
 export class Health {
-  amount = 100;
-  position = new Vector2(Math.random(), Math.random());
+  amount = 10;
+  position = new Vector2(
+    Math.random() * (canvasWidth / 2) - canvasWidth / 4,
+    Math.random() * (canvasHeight / 2) - canvasHeight / 4
+  );
   radius = HEALTH_RADIUS;
-  remove: () => void;
-
-  constructor(remove: () => void) {
-    this.remove = remove;
-  }
 }

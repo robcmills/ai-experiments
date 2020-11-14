@@ -2,7 +2,6 @@ import { config } from 'components/Duel/config';
 import { Game } from 'components/Duel/Game';
 import { Player } from 'components/Duel/Player';
 import { Health } from 'components/Duel/Health';
-import { Vector2 } from 'util/Vector2';
 
 export class Renderer {
   private canvas: HTMLCanvasElement;
@@ -41,16 +40,12 @@ export class Renderer {
   }
 
   drawHealth(health: Health) {
-    console.log('drawHealth', health);
     const { canvasHeight, canvasWidth } = config;
     const c = this.context;
-    const center = new Vector2(
-      health.position.x * canvasWidth - canvasWidth / 2,
-      health.position.y * canvasHeight - canvasHeight / 2
-    );
+    const center = health.position;
     const size = canvasHeight > canvasWidth ? canvasWidth : canvasHeight;
     const radius = 0.02 * size;
-    c.fillStyle = 'orange';
+    c.fillStyle = health.amount > 0 ? 'orange' : 'black';
     c.fillRect(
       center.x - radius,
       center.y - radius / 4,
