@@ -18,15 +18,26 @@ export class NeatDuel {
 
   start() {
     this.game = new Game();
+    this.game.addRandomHealth();
+
+    for (let i = 0; i < 100; i++) {
+      this.neat.mutate();
+    }
 
     this.neat.population.forEach((network: NetworkType) => {
       this.game.addPlayer(network);
     });
 
-    while (!this.game.isEnd) {
+    for (let i = 0; i < 100; i++) {
       this.game.step();
-      this.renderer.render(this.game);
+      this.renderer.renderPlayers(this.game);
     }
+
+    this.renderer.renderHealths(this.game);
+
+    this.game.players.forEach((player) => {
+      console.log('player.age', player.age);
+    });
 
     console.log(this);
   }

@@ -1,4 +1,4 @@
 export const config = {
-  canvasHeight: 200,
-  canvasWidth: 200,
+  canvasHeight: 350,
+  canvasWidth: 350,
 };

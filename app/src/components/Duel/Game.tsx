@@ -4,12 +4,7 @@ import { NetworkType } from 'components/Duel/NeatTypes';
 
 export class Game {
   healthsByIndex: Map<number, Health> = new Map();
-  isEnd = false;
   playersByIndex: Map<number, Player> = new Map();
-
-  constructor() {
-    this.addRandomHealth();
-  }
 
   get healths() {
     return Array.from(this.healthsByIndex.values());
@@ -42,9 +37,8 @@ export class Game {
 
   step() {
     this.players.forEach((player) => {
-      player.step(this.healths);
-      if (player.health <= 0) {
-        this.isEnd = true;
+      if (player.health > 0) {
+        player.step(this.healths);
       }
     });
   }
