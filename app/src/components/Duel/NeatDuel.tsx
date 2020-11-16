@@ -3,7 +3,10 @@ import { Game } from 'components/Duel/Game';
 import { NeatType, NetworkType } from 'components/Duel/NeatTypes';
 const { Neat } = require('neataptic');
 
-const options = {};
+const options = {
+  elitism: 10,
+  popsize: 100,
+};
 
 const EVOLUTIONS = 1000;
 
@@ -23,28 +26,34 @@ export class NeatDuel {
     game.addRandomHealth();
     game.addPlayer(network);
     game.run();
-    return game.players[0].score(game);
+    return Promise.resolve(game.players[0].score(game));
   }
 
-  start() {
+  async start() {
+    // Provide some initial variety
     for (let i = 0; i < 100; i++) {
       this.neat.mutate();
     }
+
+    // Evolve a champion
+    let champion: NetworkType;
     for (let i = 0; i < EVOLUTIONS; i++) {
+      const fittest = await this.neat.evolve();
+      const championScore = (champion && champion.score) || 0;
+      if (fittest.score > championScore) {
+        champion = fittest;
+      }
       if (i % 100 === 0) {
         console.log(`evolving ${i} of ${EVOLUTIONS}`);
+        console.log('champion.score', champion.score);
       }
-      this.neat.evolve();
     }
-    this.neat.sort();
+    console.log('final champion.score', champion.score);
 
+    // Simulate and visualize fittest
     this.game = new Game();
     this.game.addRandomHealth();
-    // Simulate and visualize top ten fittest
-    for (let i = 0; i < 10; i++) {
-      this.game.addPlayer(this.neat.population[i]);
-    }
-
+    this.game.addPlayer(champion);
     for (let i = 0; i < 100; i++) {
       this.game.step();
       this.renderer.renderPlayers(this.game);
