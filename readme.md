@@ -1,6 +1,7 @@
 
-Entry 1
-Sun Nov 15, 2020
+*Entry 1*
+
+*Sun Nov 15, 2020*
 
 I began with https://github.com/alenaksu/neatjs, a javascript implementation of Kenneth Stanley's
 NEAT algorithm. I studied this codebase and began a rewrite in a branch of this repo. I made
