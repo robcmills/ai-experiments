@@ -1,8 +1,8 @@
 import React from 'react';
 import './App.css';
 
-import { Duel } from 'components/Duel';
+import { Game } from 'components/Game';
 
 export function App() {
-  return <Duel />;
+  return <Game />;
 }
