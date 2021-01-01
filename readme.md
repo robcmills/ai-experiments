@@ -1,6 +1,7 @@
 
-Entry 1
-Sun Nov 15, 2020
+*Entry 1*
+
+*Sun Nov 15, 2020*
 
 I began with https://github.com/alenaksu/neatjs, a javascript implementation of Kenneth Stanley's
 NEAT algorithm. I studied this codebase and began a rewrite in a branch of this repo. I made
@@ -31,7 +32,7 @@ class Player {
 
 Where one `health` would be spawned randomly on the canvas somewhere. When a player's position
  got close enough to the position of the health, that player's health would incease. Each step of
-  the simulation ever player's health would decrement by one, or if a player moved out-of-bounds
+  the simulation every player's health would decrement by one, or if a player moved out-of-bounds
    their health would immediately be set to zero, effectively killing them. The goal here being
     to evolve players that seek the health, basic target acquisition.
     
@@ -41,6 +42,8 @@ Before attempting to evolve, I would mutate the original population 100 times an
    simple network with 5 inputs and 2 outputs it produced a somewhat interesting assortment of
     movement behaviors:
     
+ ![initial-mutated-seed-populations](https://i.imgur.com/wk3j6jh.png)
+    
  Then I set about evolving the population, whereby each players fitness, or score, would be its
   health minus its distance to the health. Thus those players who got closer would be rewarded
    and those who got close enough would be rewarded more (by acquisition of the health).
@@ -48,3 +51,4 @@ Before attempting to evolve, I would mutate the original population 100 times an
  With only 1000 rounds of evolution this usually yielded a decent champion that would move closer
   to the target health, as depicted in the following screenshots:
   
+ ![initial-evolved-behavior](https://i.imgur.com/pRfafmG.png)
