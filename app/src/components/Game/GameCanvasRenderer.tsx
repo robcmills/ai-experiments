@@ -167,17 +167,28 @@ export class GameCanvasRenderer {
     if (!this.hoveredMove) {
       return;
     }
+    const xCoord = this.getXCoordFromIndex(
+      this.hoveredMove.to.xIndex,
+      this.hoveredMove.to.yIndex
+    );
+    const yCoord = this.getYCoordFromIndex(this.hoveredMove.to.yIndex);
     if (this.hoveredMove.type === 'token') {
       drawCircle({
         context: this.context,
         lineWidth: this.config.hoveredTokenLineWidth,
         radius: this.config.tokenRadius,
         stroke: this.config.hoveredTokenStrokeStyle,
-        x: this.getXCoordFromIndex(
-          this.hoveredMove.to.xIndex,
-          this.hoveredMove.to.yIndex
-        ),
-        y: this.getYCoordFromIndex(this.hoveredMove.to.yIndex),
+        x: xCoord,
+        y: yCoord,
+      });
+    } else if (this.hoveredMove.type === 'stack') {
+      drawHex({
+        context: this.context,
+        lineWidth: this.config.hexLineWidth,
+        stroke: this.config.hoveredStackStrokeStyle,
+        radius: this.config.hexRadius,
+        x: xCoord,
+        y: yCoord,
       });
     }
   }
@@ -271,6 +282,12 @@ export class GameCanvasRenderer {
       const yCoord = this.getYCoordFromIndex(move.to.yIndex);
       const distance: number = getDistance(mouseX, mouseY, xCoord, yCoord);
       if (distance < nearestDistance) {
+        nearestDistance = distance;
+        nearestMove = move;
+      } else if (
+        distance === nearestDistance &&
+        distance < this.config.tokenRadius + 2
+      ) {
         nearestDistance = distance;
         nearestMove = move;
       }

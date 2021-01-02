@@ -10,6 +10,7 @@ export interface IRenderConfig {
   hexLineWidth: number;
   hexRadius: number;
   hexStrokeStyle: string;
+  hoveredStackStrokeStyle: string;
   hoveredTokenLineWidth: number;
   hoveredTokenStrokeStyle: string;
   tokenRadius: number;
@@ -28,6 +29,7 @@ export const renderConfig: IRenderConfig = {
   hexLineWidth: 2,
   hexRadius: 16,
   hexStrokeStyle: 'white',
+  hoveredStackStrokeStyle: 'yellow',
   hoveredTokenLineWidth: 2,
   hoveredTokenStrokeStyle: 'yellow',
   tokenRadius: 4,
