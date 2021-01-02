@@ -10,6 +10,8 @@ export interface IRenderConfig {
   hexLineWidth: number;
   hexRadius: number;
   hexStrokeStyle: string;
+  hoveredFalloffDistance: number;
+  hoveredStackLineWidth: number;
   hoveredStackStrokeStyle: string;
   hoveredTokenLineWidth: number;
   hoveredTokenStrokeStyle: string;
@@ -29,8 +31,10 @@ export const renderConfig: IRenderConfig = {
   hexLineWidth: 2,
   hexRadius: 16,
   hexStrokeStyle: 'white',
+  hoveredFalloffDistance: 32,
+  hoveredStackLineWidth: 1,
   hoveredStackStrokeStyle: 'yellow',
-  hoveredTokenLineWidth: 2,
+  hoveredTokenLineWidth: 1,
   hoveredTokenStrokeStyle: 'yellow',
   tokenRadius: 4,
   validStackMoveFillStyle: 'gold',

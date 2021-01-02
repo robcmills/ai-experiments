@@ -58,18 +58,21 @@ function getInitialPlayers() {
       isHuman: false,
       name: 'red',
       score: 0,
+      tokenFillStyle: 'red',
     } as IPlayer,
     green: {
       hexFillStyle: 'lightgreen',
       isHuman: true,
       name: 'green',
       score: 0,
+      tokenFillStyle: 'green',
     } as IPlayer,
     blue: {
       hexFillStyle: 'lightblue',
       isHuman: false,
       name: 'blue',
       score: 0,
+      tokenFillStyle: 'blue',
     } as IPlayer,
   };
 }
@@ -140,6 +143,7 @@ export interface IPlayer {
   isHuman: boolean;
   name: PlayerName;
   score: number;
+  tokenFillStyle: string;
 }
 
 export interface IPlayers {

@@ -50,16 +50,25 @@ export class GameCanvasRenderer {
       Object.keys(this.game.state.hexes[xIndex]).forEach((yKey) => {
         const yIndex = parseInt(yKey, 10);
         const hex: IHexState = this.game.state.hexes[xIndex][yIndex];
-        const isValidStackMove = !!this.game.getValidStackMove(xIndex, yIndex);
-        let fill =
-          isValidStackMove && this.config.drawValidMoves
-            ? this.config.validStackMoveFillStyle
-            : this.config.hexFillStyle;
-        if (hex.owner) {
-          fill = this.game.state.players[hex.owner].hexFillStyle;
-        }
         const xCoord = this.getXCoordFromIndex(hex.x, hex.y);
         const yCoord = this.getYCoordFromIndex(hex.y);
+
+        const isHoveredStackMove =
+          this.hoveredMove &&
+          this.hoveredMove.type === 'stack' &&
+          this.hoveredMove.to.xIndex === xIndex &&
+          this.hoveredMove.to.yIndex === yIndex;
+        const isValidStackMove = !!this.game.getValidStackMove(xIndex, yIndex);
+        let fill = this.config.hexFillStyle;
+        if (isHoveredStackMove) {
+          fill = this.game.state.players[this.game.state.activePlayer]
+            .hexFillStyle;
+        } else if (isValidStackMove && this.config.drawValidMoves) {
+          fill = this.config.validStackMoveFillStyle;
+        } else if (hex.owner) {
+          fill = this.game.state.players[hex.owner].hexFillStyle;
+        }
+
         drawHex({
           context: this.context,
           fill,
@@ -175,18 +184,9 @@ export class GameCanvasRenderer {
     if (this.hoveredMove.type === 'token') {
       drawCircle({
         context: this.context,
-        lineWidth: this.config.hoveredTokenLineWidth,
+        fill: this.game.state.players[this.game.state.activePlayer]
+          .tokenFillStyle,
         radius: this.config.tokenRadius,
-        stroke: this.config.hoveredTokenStrokeStyle,
-        x: xCoord,
-        y: yCoord,
-      });
-    } else if (this.hoveredMove.type === 'stack') {
-      drawHex({
-        context: this.context,
-        lineWidth: this.config.hexLineWidth,
-        stroke: this.config.hoveredStackStrokeStyle,
-        radius: this.config.hexRadius,
         x: xCoord,
         y: yCoord,
       });
@@ -292,6 +292,11 @@ export class GameCanvasRenderer {
         nearestMove = move;
       }
     });
+    if (nearestDistance > this.config.hoveredFalloffDistance) {
+      this.hoveredMove = null;
+      this.draw();
+      return;
+    }
     if (
       !this.hoveredMove ||
       (nearestMove && !isEqualMove(nearestMove, this.hoveredMove))
