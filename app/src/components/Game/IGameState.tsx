@@ -55,16 +55,19 @@ function getInitialPlayers() {
   return {
     red: {
       hexFillStyle: 'lightcoral',
+      isHuman: false,
       name: 'red',
       score: 0,
     } as IPlayer,
     green: {
       hexFillStyle: 'lightgreen',
+      isHuman: true,
       name: 'green',
       score: 0,
     } as IPlayer,
     blue: {
       hexFillStyle: 'lightblue',
+      isHuman: false,
       name: 'blue',
       score: 0,
     } as IPlayer,
@@ -134,6 +137,7 @@ export interface ITokens {
 
 export interface IPlayer {
   hexFillStyle: string;
+  isHuman: boolean;
   name: PlayerName;
   score: number;
 }
@@ -141,6 +145,21 @@ export interface IPlayer {
 export interface IPlayers {
   [name: string]: IPlayer;
 }
+
+export interface IValidMove {
+  playerName: PlayerName;
+  type: 'stack' | 'token';
+  from?: {
+    xIndex: number;
+    yIndex: number;
+  };
+  to: {
+    xIndex: number;
+    yIndex: number;
+  };
+}
+
+export type ValidStackMove = [number, number];
 
 export interface IValidStackMoves {
   [xIndex: number]: {

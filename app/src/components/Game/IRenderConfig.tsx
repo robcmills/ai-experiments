@@ -17,7 +17,7 @@ export const renderConfig: IRenderConfig = {
   canvas: { height: 256, width: 256 },
   center: { x: 64, y: 64 },
   drawHexIndexes: false,
-  drawValidMoves: false,
+  drawValidMoves: true,
   font: 'monospace',
   fontSize: '9px',
   hexFillStyle: 'lightgray',

@@ -18,6 +18,7 @@ export class GameCanvasRenderer {
 
   private bindEventListeners() {
     document.addEventListener('keydown', this.handleKeydown.bind(this));
+    this.canvas.addEventListener('mousemove', this.handleMousemove.bind(this));
   }
 
   private clearCanvas() {
@@ -270,7 +271,15 @@ export class GameCanvasRenderer {
       this.draw();
     } else if (event.key === 'r') {
       this.reset();
+    } else if (event.key === 'v') {
+      console.log(this.game.getValidMoves());
     }
+  }
+
+  private handleMousemove(event: MouseEvent) {
+    const mouseX = event.clientX;
+    const mouseY = event.clientY;
+    // console.log({ mouseX, mouseY });
   }
 
   private init() {

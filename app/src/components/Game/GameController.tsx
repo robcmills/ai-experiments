@@ -6,8 +6,10 @@ import {
   IHexState,
   IPlayer,
   IToken,
+  IValidMove,
   IValidTokenMove,
   PlayerName,
+  ValidStackMove,
 } from 'components/Game/IGameState';
 import { getRandomKey } from 'components/Game/getRandomKey';
 import { gameConfig } from 'components/Game/IGameConfig';
@@ -135,8 +137,66 @@ export class GameController {
     return (this.state.tokens[x] || {})[y];
   }
 
+  public getValidMoves(): IValidMove[] {
+    const validMoves: IValidMove[] = [];
+    this.getValidStackMoves().forEach(([x, y]) => {
+      validMoves.push({
+        playerName: this.state.activePlayer,
+        type: 'stack',
+        to: {
+          xIndex: x,
+          yIndex: y,
+        },
+      });
+    });
+    this.getValidTokenMoves().forEach((validTokenMove: IValidTokenMove) => {
+      validMoves.push({
+        playerName: this.state.activePlayer,
+        type: 'token',
+        ...validTokenMove,
+      });
+    });
+    return validMoves;
+  }
+
   public getValidStackMove(xIndex: number, yIndex: number) {
     return (this.state.validStackMoves[xIndex] || {})[yIndex];
+  }
+
+  public getValidStackMoves(): ValidStackMove[] {
+    const validStackMoves: ValidStackMove[] = [];
+    Object.keys(this.state.validStackMoves)
+      .sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
+      .forEach((xKey: string) => {
+        const xIndex = parseInt(xKey, 10);
+        Object.keys(this.state.validStackMoves[xIndex])
+          .sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
+          .forEach((yKey: string) => {
+            const yIndex = parseInt(yKey, 10);
+            validStackMoves.push([xIndex, yIndex]);
+          });
+      });
+    return validStackMoves;
+  }
+
+  public getValidTokenMove(xIndex: number, yIndex: number): IValidTokenMove {
+    return (this.state.validTokenMoves[xIndex] || {})[yIndex];
+  }
+
+  public getValidTokenMoves(): IValidTokenMove[] {
+    const validTokenMoves: IValidTokenMove[] = [];
+    Object.keys(this.state.validTokenMoves)
+      .sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
+      .forEach((xKey: string) => {
+        const xIndex = parseInt(xKey, 10);
+        Object.keys(this.state.validTokenMoves[xIndex])
+          .sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
+          .forEach((yKey: string) => {
+            const yIndex = parseInt(yKey, 10);
+            validTokenMoves.push(this.getValidTokenMove(xIndex, yIndex));
+          });
+      });
+    return validTokenMoves;
   }
 
   private moveToken(tokenMove: IValidTokenMove) {
