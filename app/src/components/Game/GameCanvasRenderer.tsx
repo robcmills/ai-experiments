@@ -1,12 +1,22 @@
-import { IHexState, IPlayer, IToken, SIN_60 } from 'components/Game/IGameState';
+import {
+  IHexState,
+  IPlayer,
+  IToken,
+  IValidMove,
+  SIN_60,
+} from 'components/Game/IGameState';
 import { GameController } from 'components/Game/GameController';
 import { IRenderConfig, renderConfig } from 'components/Game/IRenderConfig';
+import { getDistance } from 'components/Game/getDistance';
+import { isEqualMove } from 'components/Game/isEqualMove';
+import { drawCircle, drawHex } from 'components/Game/draw';
 
 export class GameCanvasRenderer {
   private canvas: HTMLCanvasElement;
   private config: IRenderConfig;
   private context: CanvasRenderingContext2D;
   private game: GameController;
+  private hoveredMove: IValidMove | null = null;
 
   constructor({ canvas }: { canvas: HTMLCanvasElement }) {
     this.canvas = canvas;
@@ -30,6 +40,7 @@ export class GameCanvasRenderer {
     this.drawBoard();
     this.drawTokens();
     this.drawValidMoves();
+    this.drawHoveredMove();
     this.drawText();
   }
 
@@ -40,20 +51,20 @@ export class GameCanvasRenderer {
         const yIndex = parseInt(yKey, 10);
         const hex: IHexState = this.game.state.hexes[xIndex][yIndex];
         const isValidStackMove = !!this.game.getValidStackMove(xIndex, yIndex);
-        let fillStyle =
+        let fill =
           isValidStackMove && this.config.drawValidMoves
             ? this.config.validStackMoveFillStyle
             : this.config.hexFillStyle;
         if (hex.owner) {
-          fillStyle = this.game.state.players[hex.owner].hexFillStyle;
+          fill = this.game.state.players[hex.owner].hexFillStyle;
         }
-        const isEvenRow = hex.y % 2 === 0;
-        const xCoord = this.getXCoordFromIndex(isEvenRow, hex.x);
+        const xCoord = this.getXCoordFromIndex(hex.x, hex.y);
         const yCoord = this.getYCoordFromIndex(hex.y);
-        this.drawHex({
-          fillStyle,
+        drawHex({
+          context: this.context,
+          fill,
           lineWidth: this.config.hexLineWidth,
-          strokeStyle: this.config.hexStrokeStyle,
+          stroke: this.config.hexStrokeStyle,
           radius: this.config.hexRadius,
           x: xCoord,
           y: yCoord,
@@ -73,51 +84,6 @@ export class GameCanvasRenderer {
         }
       });
     });
-  }
-
-  private drawHex({
-    fillStyle,
-    lineWidth,
-    radius,
-    strokeStyle,
-    x,
-    y,
-  }: {
-    fillStyle?: string;
-    lineWidth?: number;
-    radius: number;
-    strokeStyle?: string;
-    x: number;
-    y: number;
-  }) {
-    /*
-      sin θ = opposite/hypotenuse        _________
-      cos θ = adjacent/hypotenuse       / |       \
-      tan θ = opposite/adjacent    hyp /  | opp    \
-                                      /θ__|         \
-                                      \ adj         /
-                                       \           /
-                                        \_________/
-     */
-    const adjacent = radius / 2;
-    const opposite = SIN_60 * radius;
-
-    const context = this.context;
-    context.beginPath();
-    context.moveTo(x + radius, y);
-    context.lineTo(x + adjacent, y + opposite);
-    context.lineTo(x - adjacent, y + opposite);
-    context.lineTo(x - radius, y);
-    context.lineTo(x - adjacent, y - opposite);
-    context.lineTo(x + adjacent, y - opposite);
-    context.lineTo(x + radius, y);
-    context.closePath();
-
-    context.fillStyle = fillStyle;
-    context.fill();
-    context.lineWidth = lineWidth;
-    context.strokeStyle = strokeStyle;
-    context.stroke();
   }
 
   private drawHexHeight({
@@ -197,6 +163,25 @@ export class GameCanvasRenderer {
     context.fillText(activePlayerText, marginLeft, lineHeight * 2);
   }
 
+  private drawHoveredMove() {
+    if (!this.hoveredMove) {
+      return;
+    }
+    if (this.hoveredMove.type === 'token') {
+      drawCircle({
+        context: this.context,
+        lineWidth: this.config.hoveredTokenLineWidth,
+        radius: this.config.tokenRadius,
+        stroke: this.config.hoveredTokenStrokeStyle,
+        x: this.getXCoordFromIndex(
+          this.hoveredMove.to.xIndex,
+          this.hoveredMove.to.yIndex
+        ),
+        y: this.getYCoordFromIndex(this.hoveredMove.to.yIndex),
+      });
+    }
+  }
+
   private drawTokens() {
     const context = this.context;
     const radius = this.config.tokenRadius;
@@ -208,8 +193,7 @@ export class GameCanvasRenderer {
       Object.keys(this.game.state.tokens[xIndex]).forEach((yKey) => {
         const yIndex = parseInt(yKey, 10);
         const token: IToken = this.game.state.tokens[xIndex][yIndex];
-        const isEvenRow = token.y % 2 === 0;
-        const x = this.getXCoordFromIndex(isEvenRow, token.x);
+        const x = this.getXCoordFromIndex(token.x, token.y);
         const y = this.getYCoordFromIndex(token.y);
         context.fillStyle = token.fillStyle;
         context.beginPath();
@@ -233,8 +217,7 @@ export class GameCanvasRenderer {
       const xIndex = parseInt(xKey, 10);
       Object.keys(this.game.state.validTokenMoves[xIndex]).forEach((yKey) => {
         const yIndex = parseInt(yKey, 10);
-        const isEvenRow = yIndex % 2 === 0;
-        const x = this.getXCoordFromIndex(isEvenRow, xIndex);
+        const x = this.getXCoordFromIndex(xIndex, yIndex);
         const y = this.getYCoordFromIndex(yIndex);
         context.fillStyle = this.config.validTokenMovesFillStyle;
         context.beginPath();
@@ -245,7 +228,8 @@ export class GameCanvasRenderer {
     });
   }
 
-  private getXCoordFromIndex(isEvenRow: boolean, x: number): number {
+  private getXCoordFromIndex(x: number, y: number): number {
+    const isEvenRow = y % 2 === 0;
     return (
       this.config.hexRadius * 3 * x +
       (isEvenRow ? 0 : this.config.hexRadius * 1.5) +
@@ -277,9 +261,27 @@ export class GameCanvasRenderer {
   }
 
   private handleMousemove(event: MouseEvent) {
-    const mouseX = event.clientX;
-    const mouseY = event.clientY;
-    // console.log({ mouseX, mouseY });
+    const mouseX = event.clientX / this.config.dpr;
+    const mouseY = event.clientY / this.config.dpr;
+    const validMoves: IValidMove[] = this.game.getValidMoves();
+    let nearestDistance: number = Infinity;
+    let nearestMove: IValidMove | null = null;
+    validMoves.forEach((move: IValidMove) => {
+      const xCoord = this.getXCoordFromIndex(move.to.xIndex, move.to.yIndex);
+      const yCoord = this.getYCoordFromIndex(move.to.yIndex);
+      const distance: number = getDistance(mouseX, mouseY, xCoord, yCoord);
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+        nearestMove = move;
+      }
+    });
+    if (
+      !this.hoveredMove ||
+      (nearestMove && !isEqualMove(nearestMove, this.hoveredMove))
+    ) {
+      this.hoveredMove = nearestMove;
+      this.draw();
+    }
   }
 
   private init() {
@@ -296,7 +298,7 @@ export class GameCanvasRenderer {
 
   private setupCanvas() {
     const canvas = this.canvas;
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = this.config.dpr;
     canvas.height = this.config.canvas.height * dpr;
     canvas.width = this.config.canvas.width * dpr;
     this.context.scale(dpr, dpr);
