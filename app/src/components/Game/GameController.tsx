@@ -36,6 +36,15 @@ export class GameController {
     this.state.validTokenMoves[to.xIndex][to.yIndex] = validTokenMove;
   }
 
+  public doMove(move: IValidMove): void {
+    if (move.type === 'stack') {
+      this.doStackMove([move.to.xIndex, move.to.yIndex]);
+    } else if (move.type === 'token') {
+      const { playerName, type, ...tokenMove } = move;
+      this.doTokenMove(tokenMove as IValidTokenMove);
+    }
+  }
+
   public doRandomMove() {
     if (this.state.isEnd) {
       return;
@@ -53,20 +62,28 @@ export class GameController {
   private doRandomStackMove(): boolean {
     const stackMove = this.getRandomStackMove();
     if (stackMove) {
-      const [xIndex, yIndex] = stackMove;
-      this.stackHex(xIndex, yIndex, this.state.activePlayer);
-      this.rotateActivePlayer();
-      this.update();
+      this.doStackMove(stackMove);
     }
     return !!stackMove;
   }
 
-  private doRandomTokenMove() {
-    const tokenMove = this.getRandomTokenMove();
+  private doRandomTokenMove(): boolean {
+    const tokenMove: IValidTokenMove = this.getRandomTokenMove();
     if (tokenMove) {
-      this.moveToken(tokenMove);
-      this.rotateActivePlayer();
+      this.doTokenMove(tokenMove);
     }
+    return !!tokenMove;
+  }
+
+  private doStackMove([xIndex, yIndex]: ValidStackMove): void {
+    this.stackHex(xIndex, yIndex, this.state.activePlayer);
+    this.rotateActivePlayer();
+    this.update();
+  }
+
+  private doTokenMove(tokenMove: IValidTokenMove): void {
+    this.moveToken(tokenMove);
+    this.rotateActivePlayer();
     this.update();
   }
 
@@ -111,7 +128,7 @@ export class GameController {
     return (this.state.hexes[adjacentX] || {})[adjacentY];
   }
 
-  private getRandomStackMove() {
+  private getRandomStackMove(): ValidStackMove {
     const xKey: string = getRandomKey(this.state.validStackMoves);
     if (!xKey) {
       return;

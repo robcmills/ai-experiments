@@ -28,6 +28,7 @@ export class GameCanvasRenderer {
 
   private bindEventListeners() {
     document.addEventListener('keydown', this.handleKeydown.bind(this));
+    this.canvas.addEventListener('mousedown', this.handleMousedown.bind(this));
     this.canvas.addEventListener('mousemove', this.handleMousemove.bind(this));
   }
 
@@ -268,6 +269,16 @@ export class GameCanvasRenderer {
       this.reset();
     } else if (event.key === 'v') {
       console.log(this.game.getValidMoves());
+    }
+  }
+
+  private handleMousedown() {
+    if (this.game.state.isEnd) {
+      return;
+    }
+    if (this.hoveredMove) {
+      this.game.doMove(this.hoveredMove);
+      this.hoveredMove = null;
     }
   }
 
